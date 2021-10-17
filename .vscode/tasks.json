@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "crystal",
+			"command": "spec",
+			"problemMatcher": [],
+			"label": "Crystal: spec",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}

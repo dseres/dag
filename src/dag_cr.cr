@@ -33,7 +33,14 @@ module DagCr
     include Enumerable({K, V})
     # include Iterable({K, V})
 
+    getter auto_validate
     @vertices = {} of K => Vertex(K, V)
+
+    # Constructor
+    #
+    # *auto_validate* is an option ( default = false) which turn on auto validation of cycle. 
+    # If validation is on, every added edge will trigger a validation whether the graph is acyclic.
+    def initialize(@auto_validate = false); end
 
     # Two graph equals if they have vertices with same ids and the other has an edge between vertices with same ids if the first graph has an edge.
     #
@@ -186,6 +193,7 @@ module DagCr
     def add_edge(from : K, to : K)
       @vertices[from].successors.push to
       @vertices[to].predecessors.push from
+      raise CycleError.new(to) if auto_validate && !valid?(to)
     end
 
     # Deletes a vertex from graph.
@@ -278,6 +286,21 @@ module DagCr
     end
 
     # Validate a graph, whether it is acyclic.
+    # 
+    # Example:
+    # ```
+    # dag = DagCr::Graph(Int32, Nil).new
+    # dag.add(1, nil)
+    # dag.add(2, nil)
+    # dag.add(3, nil)
+    # dag.add(4, nil)
+    # dag.add_edge(1, 2)
+    # dag.add_edge(2, 3)
+    # dag.add_edge(3, 4)
+    # dag.valid? # => true
+    # dag.add_edge(4, 2)        
+    # dag.valid? # => false
+    # ```
     def valid?
       keys = Set(K).new(@vertices.size)
       valid = true
@@ -285,6 +308,22 @@ module DagCr
       valid
     end
 
+    # Validate subgraph from vertex with key whether it is acyclic.
+    # 
+    # Example:
+    # ```
+    # dag = DagCr::Graph(Int32, Nil).new
+    # dag.add(1, nil)
+    # dag.add(2, nil)
+    # dag.add(3, nil)
+    # dag.add(4, nil)
+    # dag.add_edge(1, 2)
+    # dag.add_edge(2, 3)
+    # dag.add_edge(3, 4)
+    # dag.valid(3)? # => true
+    # dag.add_edge(4, 2)        
+    # dag.valid(3)? # => false
+    # ```
     def valid?(key : K)
       keys = Set(K).new(@vertices.size)
       valid_from?(keys, key)
@@ -298,11 +337,12 @@ module DagCr
     end
   end
 
-  # Raised when a method is not implemented.
+  # Raised when a graph is cyclic.
   #
-  # This can be used either to stub out method bodies, or when the method is not
-  # implemented on the current platform.
+  # If a cycle is detected, this error will be risen with the key of the vertex found twice in a going-over.
   class CycleError < Exception
+
+    # Key will be the key of vertex found twice in a going-over of graph.
     def initialize(key)
       super("Cycle detected from key: #{key}")
     end

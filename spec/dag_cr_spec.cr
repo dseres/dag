@@ -86,32 +86,30 @@ describe DagCr do
 
     describe "#keys" do
       it "Keys should contains all keys in topological order" do
-        dag = DagCr::Graph(Int32, Nil).new
-        dag.add(4, nil)
-        dag.add(9, nil)
-        dag.add(1, nil)
-        dag.add(2, nil)
-        dag.add(3, nil)
-        dag.add(5, nil)
-        dag.add(6, nil)
-        dag.add(7, nil)
-        dag.add(8, nil)
-        dag.add_edge(1, 3)
-        dag.add_edge(5, 6)
-        dag.add_edge(5, 7)
-        dag.add_edge(6, 4)
+        dag = create_test_graph
         dag.keys.should eq([9, 1, 3, 2, 5, 6, 4, 7, 8])
       end
     end
 
     describe "#add" do
-      pending "Some added element should be stored in a hashmap" do
+      it "Some added element should be stored in a hashmap" do
         dag = DagCr::Graph(String, Int32).new
         dag.add("one", 1)
         dag.add("two", 2)
         dag.add("three", 3)
         size = dag.size
         size.should eq(3)
+      end
+    end
+
+    describe "#add_edge" do
+      it "Adding an edge should modifiy the sucessors and predecessors of edges" do
+        dag = DagCr::Graph(Int32, Int32).new
+        dag.add(1, 1)
+        dag.add(2, 2)
+        dag.add_edge(1,2)
+        dag.predecessors(2).should eq( [1] )
+        dag.successors(1).should eq( [2] )
       end
     end
 
@@ -140,33 +138,12 @@ describe DagCr do
 
     describe "#valid?" do
       it "Cycles should be detected." do
-        dag = DagCr::Graph(Int32, Nil).new
-        dag.add(1, nil)
-        dag.add(2, nil)
-        dag.add(3, nil)
-        dag.add(4, nil)
-        dag.add_edge(1, 2)
-        dag.add_edge(2, 3)
-        dag.add_edge(3, 4)
+        dag = create_test_graph
         dag.valid?.should be_true
-        dag.add_edge(4, 2)        
+        dag.add_edge(4, 6)        
         dag.valid?.should_not be_true
       end
-
-      it "Cycles should be detected from a given vertex." do
-        dag = DagCr::Graph(Int32, Nil).new
-        dag.add(1, nil)
-        dag.add(2, nil)
-        dag.add(3, nil)
-        dag.add(4, nil)
-        dag.add_edge(1, 2)
-        dag.add_edge(2, 3)
-        dag.add_edge(3, 4)
-        dag.valid?(3).should be_true
-        dag.add_edge(4, 2)        
-        dag.valid?(3).should_not be_true
-      end
     end
-  end
-
+  end  
 end
+

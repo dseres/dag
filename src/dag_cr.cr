@@ -33,14 +33,7 @@ module DagCr
     include Enumerable({K, V})
     # include Iterable({K, V})
 
-    getter auto_validate
     @vertices = {} of K => Vertex(K, V)
-
-    # Constructor
-    #
-    # *auto_validate* is an option ( default = false) which turn on auto validation of cycle. 
-    # If validation is on, every added edge will trigger a validation whether the graph is acyclic.
-    def initialize(@auto_validate = false); end
 
     # Two graph equals if they have vertices with same ids and the other has an edge between vertices with same ids if the first graph has an edge.
     #
@@ -193,7 +186,6 @@ module DagCr
     def add_edge(from : K, to : K)
       @vertices[from].successors.push to
       @vertices[to].predecessors.push from
-      raise CycleError.new(to) if auto_validate && !valid?(to)
     end
 
     # Deletes a vertex from graph.
@@ -245,6 +237,7 @@ module DagCr
     end
 
     # Calls a given block on every key and value pairs stored in the graph topological order.
+    # [Topological](https://en.wikipedia.org/wiki/Topological_sorting) order is computed with Kahn's algorytm. 
     #
     # Example:
     # ```
@@ -278,11 +271,22 @@ module DagCr
     # dag.keys # => [1, 3, 2, 4]
     # ```
     def keys
-      roots.map { |k, _v| keys_from(k) }.sum([] of K)
+      marked = {} of K => Vertex(K, V)
+      unmarked = @vertices.clone
+      check_visited( marked, unmarked, roots.map { |k,_v| k} )
+      raise CycleDetectedError.new(unmarked.keys) if marked.size() < @vertices.size()
+      marked.keys
     end
 
-    private def keys_from(k) : Array(K)
-      @vertices[k].successors.map() { |k| keys_from(k) }.sum([k])
+    private def check_visited(marked, unmarked, key_array) 
+      key_array.each do |key|
+        vertex = @vertices[key]
+        if vertex.predecessors.all? { |p| marked.has_key? p }
+          marked[key] = vertex
+          unmarked.delete key
+          check_visited marked, unmarked, vertex.successors
+        end
+      end
     end
 
     # Validate a graph, whether it is acyclic.
@@ -302,49 +306,23 @@ module DagCr
     # dag.valid? # => false
     # ```
     def valid?
-      keys = Set(K).new(@vertices.size)
-      valid = true
-      roots.each { |k, _v| valid = valid && valid_from?(keys, k) }
-      valid
-    end
-
-    # Validate subgraph from vertex with key whether it is acyclic.
-    # 
-    # Example:
-    # ```
-    # dag = DagCr::Graph(Int32, Nil).new
-    # dag.add(1, nil)
-    # dag.add(2, nil)
-    # dag.add(3, nil)
-    # dag.add(4, nil)
-    # dag.add_edge(1, 2)
-    # dag.add_edge(2, 3)
-    # dag.add_edge(3, 4)
-    # dag.valid(3)? # => true
-    # dag.add_edge(4, 2)        
-    # dag.valid(3)? # => false
-    # ```
-    def valid?(key : K)
-      keys = Set(K).new(@vertices.size)
-      valid_from?(keys, key)
-    end
-
-    private def valid_from?(keys : Set(K), key)
-      return false unless keys.add? key
-      valid = true
-      successors(key).each { |k| valid = valid && valid_from?(keys, k) }
-      valid
+      begin
+        keys
+        return true
+      rescue exception
+        return false
+      end
     end
   end
 
   # Raised when a graph is cyclic.
   #
   # If a cycle is detected, this error will be risen with the key of the vertex found twice in a going-over.
-  class CycleError < Exception
+  class CycleDetectedError < Exception
 
     # Key will be the key of vertex found twice in a going-over of graph.
-    def initialize(key)
-      super("Cycle detected from key: #{key}")
+    def initialize(keys)
+      super("Cycle detected in graph with keys #{keys}")
     end
   end
 
@@ -358,6 +336,13 @@ module DagCr
 
     def ==(other : Vertex(K, V))
       @value == other.value && @predecessors == other.predecessors && successors == other.successors
+    end
+
+    def clone
+      v = Vertex(K,V).new value.clone()
+      v.predecessors = @predecessors.clone
+      v.successors = @successors.clone
+      v
     end
   end
 end

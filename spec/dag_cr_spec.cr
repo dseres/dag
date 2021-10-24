@@ -13,30 +13,18 @@ describe DagCr do
 
     describe "#==" do
       it "Two graph having the same vertices and edges shoud be equal" do
-        dag1 = Graph(Int32).new
-        dag1.add(1)
-        dag1.add(3)
-        dag1.add(5)
-        dag1.add_edge(1,3)
-        dag1.add_edge(5,3)
-        dag2 = Graph(Int32).new
-        dag2.add(1)
-        dag2.add(3)
-        dag2.add(5)
-        dag2.add_edge(1,3)
-        dag2.add_edge(5,3)
+        dag1 = create_test_graph
+        dag2 = create_test_graph
         dag1.should eq(dag2)
 
-        dag2.add(7)
+        dag2.add(10)
         dag1.should_not eq(dag2)
-        dag1.add(7)
+        dag1.add(10)
         dag1.should eq(dag2)
-        dag2.add_edge(7,5)
+        dag2.add_edge(9,10)
         dag1.should_not eq(dag2)
 
         dag3 = Graph(Int32).new
-        dag3.should_not eq(dag1)
-        dag3 = Graph(String).new
         dag3.should_not eq(dag1)
       end
 
@@ -77,19 +65,18 @@ describe DagCr do
       end
       it "If only vertices are added to graph, every vertices will be a root." do
         dag = Graph(Int32).new
-        dag.add(1)
-        dag.add(2)
-        dag.roots.size.should eq(2)
-        dag.roots.should eq([1,2])
+        (1..9).each { |i| dag.add i }
+        dag.roots.size.should eq 9
+        dag.roots.should eq (1..9).to_a
       end
       it "Graph of three vertices and one edge will have two roots" do
         dag = Graph(Int32).new
-        dag.add(1)
-        dag.add(2)
-        dag.add(3)
-        dag.add_edge(1, 2)
-        dag.roots.size.should eq(2)
-        dag.roots.should eq([1,3])
+        dag.add 1
+        dag.add 2
+        dag.add 3
+        dag.add_edge 1,2
+        dag.roots.size.should eq 2
+        dag.roots.should eq [1,3]
       end
     end
 
@@ -97,7 +84,7 @@ describe DagCr do
       it "Cycles should be detected." do
         dag = create_test_graph
         dag.valid?.should be_true
-        dag.add_edge(4, 6)        
+        dag.add_edge(3, 6)        
         dag.valid?.should_not be_true
       end
     end

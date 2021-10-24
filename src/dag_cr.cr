@@ -127,12 +127,17 @@ module DagCr
     # dag.add(2)
     # ```
     def add(vertex : V)
-      raise VertexExistsInGraphError.new(vertex) if has?(vertex)
+      raise VertexExistsError.new(vertex) if has?(vertex)
       @vertices[vertex] = Adjacency(V).new
     end
 
+    def has_edge?(from : V, to : V)
+      @vertices[from].has_successor?(to) && @vertices[to].has_predecessor?(from)
+    end
+
     # Adds a new edge to graph.
-    # Function raises KeyError if one of the vertices doesn't exists.
+    # Function will insert vertex too if one of the vertices doesn't exists.
+    # If edge is already exists it will not add it again.
     #
     # Example:
     # ```
@@ -144,11 +149,15 @@ module DagCr
     # dag.successors[1]   # => [2]
     # ```
     def add_edge(from : V, to : V)
+      add from unless has? from
+      add to unless has? to
+      return if has_edge? from, to
       @vertices[from].successors.push to
       @vertices[to].predecessors.push from
     end
 
     # Deletes a vertex from graph.
+    # Raises VertexNotExistsError when *vertex* doesn't exists in graph.
     #
     # Example:
     # ```
@@ -160,8 +169,9 @@ module DagCr
     # dag.keys # => [1]
     # ```
     def delete(vertex : V)
-      @vertices[vertex].successors.each &.predecessors.delete v
-      @vertices[vertex].predecessors.each &.successors.delete v
+      raise VertexNotExistsError.new vertex unless has? vertex
+      @vertices[vertex].successors.each &.predecessors.delete vertex
+      @vertices[vertex].predecessors.each &.successors.delete vertex
       @vertices.delete vertex
     end
 
@@ -177,11 +187,12 @@ module DagCr
     # dag.delete(1, 2)
     # ```
     def delete(from : V, to : V)
+      return unless has_edge? from, to
       @vertices[from].successors.delete to
       @vertices[to].predecessors.delete from
     end
 
-    # Retreives all the root vertexs of the graph
+    # Retreives all the root vertices of the graph
     #
     # Example:
     # ```
@@ -256,9 +267,15 @@ module DagCr
     end
   end
 
-  class VertexExistsInGraphError < Exception
+  class VertexExistsError < Exception
     def initialize(vertex)
-      super("Vertex #{vertex} is already exists in graph.")
+      super("Vertex (#{vertex}) is already exists in graph.")
+    end
+  end
+
+  class VertexNotExistsError < Exception
+    def initialize(vertex)
+      super("Vertex (#{vertex}) doesn't exists in graph.")
     end
   end
   
@@ -291,5 +308,14 @@ module DagCr
     def root?
       predecessors.empty?
     end
+
+    def has_successor? (vertex : V)
+      !@successors.index(vertex).nil?
+    end
+
+    def has_predecessor? (vertex : V)
+      !@predecessors.index(vertex).nil?
+    end
+
   end
 end

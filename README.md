@@ -8,8 +8,8 @@ Directed Acyclic Graph class written in crystal.
 
    ```yaml
    dependencies:
-     dag_cr:
-       github: your-github-user/dag_cr
+     dag:
+       github: your-github-user/dag
    ```
 
 2. Run `shards install`
@@ -17,7 +17,7 @@ Directed Acyclic Graph class written in crystal.
 ## Usage
 
 ```crystal
-require "dag_cr"
+require "dag"
 ```
 
 TODO: Write usage instructions here

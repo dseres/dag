@@ -3,6 +3,9 @@
 A Crystal module to handle [directed acyclic graphs](https://en.wikipedia.org/wiki/Directed_acyclic_graph) (DAG)
 
 This DAG implementation can be used for creating schedulers. E.g.: running multiple tasks which has predefined dependencies.
+
+[![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://dseres.github.io/dag/)
+
 ## Installation
 
 1. Add the dependency to your `shard.yml`:

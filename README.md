@@ -1,6 +1,6 @@
-# dag_cr
+# dag
 
-TODO: Write a description here
+Directed Acyclic Graph class written in crystal. 
 
 ## Installation
 

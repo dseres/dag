@@ -4,7 +4,11 @@ A Crystal module to handle [directed acyclic graphs](https://en.wikipedia.org/wi
 
 This DAG implementation can be used for creating schedulers. E.g.: running multiple tasks which has predefined dependencies.
 
+Latest documentation:
 [![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://dseres.github.io/dag/)
+
+Releases: 
+[![GitHub release](https://img.shields.io/github/release/dseres/dag.svg)](https://github.com/dseres/dag/releases)
 
 ## Installation
 

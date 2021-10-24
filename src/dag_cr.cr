@@ -5,79 +5,126 @@ module DagCr
   VERSION = "0.1.0"
 
   # Graph class represents a [directed acyclic graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph) with unweighted edges.
-  # Graph uses a Hash to store its data. K is a uniqe identifier of a vertex, and V can hold any properties for it.
+  # Graph is represented as adjecency list of its vertices. Graph uses a Hash(V) storing its elements. V must be a uniqe value
+  # identifying a vertex of graph.
   #
   # Example:
   # ```
-  # dag = DagCr::Graph(Int32, Nil).new
-  # dag.add(4, nil)
-  # dag.add(9, nil)
-  # dag.add(1, nil)
-  # dag.add(2, nil)
-  # dag.add(3, nil)
-  # dag.add(5, nil)
-  # dag.add(6, nil)
-  # dag.add(7, nil)
-  # dag.add(8, nil)
+  # dag = Graph(Int32).new
+  # dag.add(1)
+  # dag.add(2)
+  # dag.add(3)
+  # dag.add(4)
+  # dag.add(5)
   # dag.add_edge(1, 3)
-  # dag.add_edge(5, 6)
-  # dag.add_edge(5, 7)
-  # dag.add_edge(6, 4)
-  #
-  # dag.keys            # => eq([9, 1, 3, 2, 5, 6, 4, 7, 8])
-  # dag.successors(5)   # => [6, 7]
-  # dag.predecessors(4) # => [6]
-  # dag[3]              # => nil
+  # dag.add_edge(1, 2)
+  # dag.add_edge(3, 4)
   # ```
-  class Graph(K, V)
-    include Enumerable({K, V})
-    # include Iterable({K, V})
+  class Graph(V)
+    include Enumerable(V)
+    include Iterable(V)
 
-    getter auto_validate
-    @vertices = {} of K => Vertex(K, V)
+    @vertices = {} of V => Adjacency(V)
 
-    # Constructor
+    # Adds a new vertex to the graph.
+    # If vertex is already exists function will raise VertexExistsError
+    # Example:
+    # ```
+    # dag = Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
+    # dag.to_a # => [1,2]
+    # ```
+    def add(vertex : V)
+      raise VertexExistsError.new(vertex) if has?(vertex)
+      @vertices[vertex] = Adjacency(V).new
+    end
+
+    # Checks whether a vertex exists in graph
     #
-    # *auto_validate* is an option ( default = false) which turn on auto validation of cycle. 
-    # If validation is on, every added edge will trigger a validation whether the graph is acyclic.
-    def initialize(@auto_validate = false); end
+    # Example:
+    # ```
+    # dag = Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
+    # dag.has? 1 # => true
+    # dag.has? 2 # => true
+    # dag.has? 3 # => false
+    # ```
+    def has?(vertex : V)
+      @vertices.has_key?(vertex)
+    end
+
+    # Adds a new edge to graph.
+    # Function will insert vertex too if one of the vertices doesn't exists.
+    # If edge is already exists it will not add it again.
+    #
+    # Example:
+    # ```
+    # dag = Graph(Int32, String).new
+    # dag.add(1, 2)
+    # dag.to_a            # => [1, 2]
+    # dag.has_edge?(1, 2) # => true
+    # ```
+    def add_edge(from : V, to : V)
+      add from unless has? from
+      add to unless has? to
+      return if has_edge? from, to
+      @vertices[from].successors.push to
+      @vertices[to].predecessors.push from
+    end
+
+    # Checks whether an edge exists.
+    # Raises VertexNotExistsError when one of the vertices doesn't exists.
+    #
+    # Example:
+    # ```
+    # dag = Graph(Int32, String).new
+    # dag.add(1, 2)
+    # dag.has_edge?(1, 2) # => true
+    # ```
+    def has_edge?(from : V, to : V)
+      raise VertexNotExistsError.new from unless has? from
+      raise VertexNotExistsError.new to unless has? to
+      @vertices[from].has_successor?(to) && @vertices[to].has_predecessor?(from)
+    end
 
     # Two graph equals if they have vertices with same ids and the other has an edge between vertices with same ids if the first graph has an edge.
     #
     # Example:
     # ```
-    # dag1 = Graph(Int32, Int32).new
-    # dag1.add(1, 2)
-    # dag1.add(3, 4)
-    # dag1.add(5, 6)
+    # dag1 = Graph(Int32).new
+    # dag1.add(1)
+    # dag1.add(3)
+    # dag1.add(5)
     # dag1.add_edge(1, 3)
     # dag1.add_edge(5, 3)
     #
-    # dag2 = Graph(Int32, Int32).new
-    # dag2.add(1, 2)
-    # dag2.add(3, 4)
-    # dag2.add(5, 6)
+    # dag2 = Graph(Int32).new
+    # dag2.add(1)
+    # dag2.add(3)
+    # dag2.add(5)
     # dag2.add_edge(1, 3)
     # dag2.add_edge(5, 3)
     # dag1.should eq(dag2)
     #
     # dag1 == dag2 # => true
     # ```
-    def ==(other : Graph(K, V))
+    def ==(other : Graph(V))
       return false unless size == other.size
-      @vertices.each do |key, vertex|
-        other_value = other[key]?
-        return false unless other_value && other_value == vertex.value && other.successors(key) == vertex.successors && other.predecessors(key) == vertex.predecessors
+      @vertices.each do |vertex, adjacency|
+        other.has? vertex
+        return false unless other.successors(vertex) == adjacency.successors && other.predecessors(vertex) == adjacency.predecessors
       end
       true
     end
 
-    # Compares with other value. It is allways false.
+    # Compares with other vertex. It is allways false.
     #
     # Example:
     # ```
-    # dag = Graph(Int32, Int32).new
-    # dag.add(1, 2)
+    # dag = Graph(Int32).new
+    # dag.add(1)
     # dag == 1 # => false
     # dag == 2 # => false
     # ```
@@ -85,279 +132,239 @@ module DagCr
       false
     end
 
-    # Returns the value for the key given by key. If not found, returns the default value given by Hash(K,V).new, otherwise raises KeyError.
-    #
-    # Example:
-    # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, "value1")
-    # dag.add(2, "value1")
-    # dag[1] # => "value2"
-    # dag[3] # => raises KeyError
-    # ```
-    def [](key)
-      @vertices[key].value
-    end
-
-    # Returns the value for the key given by key. If not found, returns nil.
-    #
-    # Example:
-    # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, "value1")
-    # dag.add(2, "value2")
-    # dag[1] # => "value1"
-    # dag[3] # => nil
-    # ```
-    def []?(key)
-      vertex = @vertices[key]?
-      return nil unless vertex
-      vertex.value
-    end
-
-    # Sets the value of key to the given value. If key doesn't exists insert it.
-    #
-    # Example:
-    # ```
-    # dag = Graph(Int32, String).new
-    # dag[1] = "value1"
-    # dag[2] = "value2"
-    # dag[1] # => "value1"
-    # dag[3] # => nil
-    # ```
-    def []=(key : K, value : V)
-      vertex = @vertices[key]?
-      add(key, value) if vertex.nil?
-      vertex.value = value unless vertex.nil?
-    end
-
     # Gets the predecessors of a vertex identified by key.
     # Example:
     # ```
-    # dag = Graph(Int32, Nil).new
-    # dag.add(1, nil)
-    # dag.add(2, nil)
-    # dag.add(3, nil)
-    # dag.add(4, nil)
+    # dag = Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
+    # dag.add(3)
+    # dag.add(4)
     # dag.add(1, 2)
     # dag.add(2, 3)
     # dag.add(2, 4)
     # dag.predecessors(2) # => [1]
     # ```
-    def predecessors(key : K)
-      @vertices[key].predecessors
+    def predecessors(vertex : V)
+      @vertices[vertex].predecessors
     end
 
     # Gets the successors of a vertex identified by key.
     #
     # Example:
     # ```
-    # dag = Graph(Int32, Nil).new
-    # dag.add(1, nil)
-    # dag.add(2, nil)
-    # dag.add(3, nil)
-    # dag.add(4, nil)
+    # dag = Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
+    # dag.add(3)
+    # dag.add(4)
     # dag.add(1, 2)
     # dag.add(2, 3)
     # dag.add(2, 4)
     # dag.successors(2) # => [3,4]
     # ```
-    def successors(key : K)
-      @vertices[key].successors
-    end
-
-    # Adds a new vertex to the graph.
-    #
-    # Example:
-    # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, "value1")
-    # dag.add(2, "value2")
-    # ```
-    def add(k : K, p : V)
-      @vertices[k] = Vertex(K, V).new(p)
-    end
-
-    # Adds a new edge to graph. If vertices doesn't exists in graph, they are also added.
-    # Function raises KeyError if one of the vertices doesn't exists.
-    #
-    # Example:
-    # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, "value1")
-    # dag.add(2, "value2")
-    # dag.add(1, 2)
-    # dag.predecessors[2] # => [1]
-    # dag.successors[1]   # => [2]
-    # ```
-    def add_edge(from : K, to : K)
-      @vertices[from].successors.push to
-      @vertices[to].predecessors.push from
-      raise CycleError.new(to) if auto_validate && !valid?(to)
+    def successors(vertex : V)
+      @vertices[vertex].successors
     end
 
     # Deletes a vertex from graph.
+    # Raises VertexNotExistsError when *vertex* doesn't exists in graph.
     #
     # Example:
     # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, "value1")
-    # dag.add(2, "value2")
+    # dag = Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
     # dag.add(1, 2)
     # dag.delete(2)
     # dag.keys # => [1]
     # ```
-    def delete(k : K)
-      @vertices[k].successors.each &.predecessors.delete k
-      @vertices[k].predecessors.each &.successors.delete k
-      @vertices.delete k
+    def delete(vertex : V)
+      raise VertexNotExistsError.new vertex unless has? vertex
+      @vertices[vertex].successors.each { |s| @vertices[s].predecessors.delete vertex }
+      @vertices[vertex].predecessors.each { |p| @vertices[p].successors.delete vertex }
+      @vertices.delete vertex
     end
 
-    # Deletes an edge from graph. If there is no edge between *from* and *to*,
-    # function will do nothing
+    # Deletes an edge from graph. If one of the vertices doesn't exists, function will raise VertexNotExistsError.
+    # If edge doesn't exists, function will do nothing.
     #
     # Example:
     # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, "value1")
-    # dag.add(2, "value2")
+    # dag = Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
     # dag.add(1, 2)
     # dag.delete(1, 2)
     # ```
-    def delete(from : K, to : K)
+    def delete(from : V, to : V)
+      raise VertexNotExistsError.new from unless has? from
+      raise VertexNotExistsError.new to unless has? to
+      return unless has_edge? from, to
       @vertices[from].successors.delete to
       @vertices[to].predecessors.delete from
     end
 
-    # Retreives all the root nodes of the graph
+    # Retreives all the root vertices of the graph
     #
     # Example:
     # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, "value1")
-    # dag.add(2, "value2")
-    # dag.add(3, "value3")
+    # dag = Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
+    # dag.add(3)
     # dag.add(1, 2)
     # dag.roots # => [1, 3]
     # ```
-    def roots
-      @vertices.select { |_k, vtx| vtx.predecessors.empty? }.map { |k, vtx| {k, vtx.value} }
+    def roots 
+      @vertices.select { |vertex, adjacency| adjacency.root? }.map { |vertex, adjacency| vertex }
     end
 
-    # Calls a given block on every key and value pairs stored in the graph topological order.
+    # Calls a given block on every key and vertex pairs stored in the graph topological order.
+    # [Topological order](https://en.wikipedia.org/wiki/Topological_sorting) is computed with Kahn's algorytm.
     #
     # Example:
     # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, "value1")
-    # dag.each do |key, value|
-    #   key   # => 1
-    #   value # => value
-    # end     #
-    #
-    # dag.add(2, "value2")
-    # dag.add(3, "value3")
-    # dag.add(1, 3)
-    # dag.each { |key_n_value| key_n_value }.to_a # => [{1, "value"}, {3, "value3"}, {2, "value2"} ]
-    # ```
-    def each
-      keys.each { |k| yield({k, self[k]}) }
-    end
-
-    # Returns array of keys in topological order.
-    #
-    # Example:
-    # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, "value1")
-    # dag.add(4, "value4")
-    # dag.add(2, "value2")
-    # dag.add(3, "value3")
+    # dag = Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
+    # dag.add(3)
+    # dag.add(4)
     # dag.add(1, 3)
     # dag.add(2, 4)
-    # dag.keys # => [1, 3, 2, 4]
+    # dag.each { |v| v }.to_a # => [1, 2, 3, 4 ]
     # ```
-    def keys
-      roots.map { |k, _v| keys_from(k) }.sum([] of K)
+    def each
+      sorted, unsorted = topological_sort
+      raise CycleDetectedError.new(unsorted.keys) if sorted.size < @vertices.size
+      sorted.each { |vertex, _| yield(vertex) }
     end
 
-    private def keys_from(k) : Array(K)
-      @vertices[k].successors.map() { |k| keys_from(k) }.sum([k])
+    private def topological_sort
+      marked = {} of V => Adjacency(V)
+      unmarked = @vertices.clone
+      check_visited(marked, unmarked, roots)
+      {marked, unmarked}
+    end
+
+    private def check_visited(marked, unmarked, vertices_to_check)
+      vertices_to_check.each do |vertex|
+        adjacency = @vertices[vertex]
+        if adjacency.predecessors.all? { |p| marked.has_key? p }
+          marked[vertex] = adjacency
+          unmarked.delete vertex
+          check_visited marked, unmarked, adjacency.successors
+        end
+      end
     end
 
     # Validate a graph, whether it is acyclic.
-    # 
+    #
     # Example:
     # ```
-    # dag = DagCr::Graph(Int32, Nil).new
-    # dag.add(1, nil)
-    # dag.add(2, nil)
-    # dag.add(3, nil)
-    # dag.add(4, nil)
+    # dag = )Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
+    # dag.add(3)
+    # dag.add(4)
     # dag.add_edge(1, 2)
     # dag.add_edge(2, 3)
     # dag.add_edge(3, 4)
     # dag.valid? # => true
-    # dag.add_edge(4, 2)        
+    # dag.add_edge(4, 2)
     # dag.valid? # => false
     # ```
     def valid?
-      keys = Set(K).new(@vertices.size)
-      valid = true
-      roots.each { |k, _v| valid = valid && valid_from?(keys, k) }
-      valid
+      sorted, _unsorted = topological_sort
+      sorted.size == @vertices.size
     end
 
-    # Validate subgraph from vertex with key whether it is acyclic.
-    # 
-    # Example:
-    # ```
-    # dag = DagCr::Graph(Int32, Nil).new
-    # dag.add(1, nil)
-    # dag.add(2, nil)
-    # dag.add(3, nil)
-    # dag.add(4, nil)
-    # dag.add_edge(1, 2)
-    # dag.add_edge(2, 3)
-    # dag.add_edge(3, 4)
-    # dag.valid(3)? # => true
-    # dag.add_edge(4, 2)        
-    # dag.valid(3)? # => false
-    # ```
-    def valid?(key : K)
-      keys = Set(K).new(@vertices.size)
-      valid_from?(keys, key)
+    # Retreives an iterator of the graph. The iterator will retreive vertices
+    # in topological order.
+    def each : Iterator(V)
+      GraphIterator(V).new(self)
     end
 
-    private def valid_from?(keys : Set(K), key)
-      return false unless keys.add? key
-      valid = true
-      successors(key).each { |k| valid = valid && valid_from?(keys, k) }
-      valid
+    private class GraphIterator(V)
+      include Iterator(V)
+
+      @graph : Graph(V)
+      @visited = Set(V).new
+      @vertices_to_check : Array(V)
+
+      def initialize(@graph)
+        @vertices_to_check = graph.roots
+      end
+
+      def next
+        next_vertex = find_next
+        if !next_vertex.nil?
+          @visited.add next_vertex
+          @vertices_to_check.delete next_vertex
+          @graph.successors(next_vertex).each{|successors| @vertices_to_check.push successors }
+          return next_vertex
+        end
+        raise CycleDetectedError.new(@vertices_to_check) unless @vertices_to_check.empty?
+        stop
+      end
+
+      private def find_next
+        @vertices_to_check.find do |vertex|
+          @graph.predecessors(vertex).all? do |predecessor|
+            @visited.includes? predecessor
+          end
+        end
+      end
+    end
+  end
+
+  class VertexExistsError < Exception
+    def initialize(vertex)
+      super("Vertex (#{vertex}) is already exists in graph.")
+    end
+  end
+
+  class VertexNotExistsError < Exception
+    def initialize(vertex)
+      super("Vertex (#{vertex}) doesn't exists in graph.")
     end
   end
 
   # Raised when a graph is cyclic.
   #
   # If a cycle is detected, this error will be risen with the key of the vertex found twice in a going-over.
-  class CycleError < Exception
-
+  class CycleDetectedError < Exception
     # Key will be the key of vertex found twice in a going-over of graph.
-    def initialize(key)
-      super("Cycle detected from key: #{key}")
+    def initialize(v)
+      super("Cycle detected in graph with keys #{v}")
     end
   end
 
-  private class Vertex(K, V)
-    property value : V
-    property predecessors = [] of K
-    property successors = [] of K
+  private class Adjacency(V)
+    property predecessors = [] of V
+    property successors = [] of V
 
-    def initialize(@value : V)
+    def ==(other : Adjacency(V))
+      @predecessors == other.predecessors && @successors == other.successors
     end
 
-    def ==(other : Vertex(K, V))
-      @value == other.value && @predecessors == other.predecessors && successors == other.successors
+    def clone
+      v = Adjacency(V).new
+      v.predecessors = @predecessors.clone
+      v.successors = @successors.clone
+      v
+    end
+
+    def root?
+      predecessors.empty?
+    end
+
+    def has_successor?(vertex : V)
+      !@successors.index(vertex).nil?
+    end
+
+    def has_predecessor?(vertex : V)
+      !@predecessors.index(vertex).nil?
     end
   end
 end

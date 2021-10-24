@@ -1,172 +1,223 @@
 require "./spec_helper"
 
-alias Graph=DagCr::Graph 
+include DagCr
 
 describe DagCr do
-  describe DagCr::Graph do
+  describe Graph do
     describe "#new" do
       it "A new Graph should contain no element" do
-        dag = DagCr::Graph(String, Int32).new
+        dag = Graph(String).new
         dag.empty?.should be_true
       end
     end
 
     describe "#==" do
       it "Two graph having the same vertices and edges shoud be equal" do
-        dag1 = Graph(Int32, Int32).new
-        dag1.add(1,2)
-        dag1.add(3,4)
-        dag1.add(5,6)
-        dag1.add_edge(1,3)
-        dag1.add_edge(5,3)
-        dag2 = Graph(Int32, Int32).new
-        dag2.add(1,2)
-        dag2.add(3,4)
-        dag2.add(5,6)
-        dag2.add_edge(1,3)
-        dag2.add_edge(5,3)
+        dag1 = create_test_graph
+        dag2 = create_test_graph
         dag1.should eq(dag2)
 
-        dag2.add(7,8)
+        dag2.add(10)
         dag1.should_not eq(dag2)
-        dag1.add(7,8)
+        dag1.add(10)
         dag1.should eq(dag2)
-        dag2.add_edge(7,5)
+        dag2.add_edge(9, 10)
         dag1.should_not eq(dag2)
 
-        dag3 = Graph(Int32, Int32).new
-        dag3.should_not eq(dag1)
-        dag3 = Graph(String, Int32).new
+        dag3 = Graph(Int32).new
         dag3.should_not eq(dag1)
       end
 
       it "A graph and any other value should never be equal" do
-        dag = Graph(Int32, String).new
-        dag.add(1, "one")
+        dag = Graph(Int32).new
+        dag.add(1)
         dag.should_not eq(1)
         dag.should_not eq("one")
-      end
-
-    end
-
-    describe "#[]" do
-      it "Indexing of graph with operator [] should give back value or raise a KeyError" do
-        dag = Graph(Int32, String).new
-        dag.add(1, "value1")
-        dag.add(2, "value2")
-        dag[1].should eq("value1")
-        dag[2].should eq("value2")
-        expect_raises(KeyError) do
-          dag[3]
-        end
-      end
-    end
-
-    describe "#[]?" do
-    it "Indexing of graph with operator []? should give back value or raise a KeyError" do
-      dag = Graph(Int32, String).new
-      dag.add(1, "value1")
-      dag.add(2, "value2")
-      dag[1]?.should eq("value1")
-      dag[2]?.should eq("value2")
-      dag[3]?.should be_nil
-    end
-  end
-
-    describe "#[]=" do
-      it "Assign index operator should give a new value for a key. "  do
-        dag = Graph(Int32, String).new
-        dag[1] = "value1"
-        dag[2] = "value2"
-        dag[2] = "val2"
-        dag[1].should be("value1")
-        dag[2].should be("val2")
-      end
-    end
-
-    describe "#keys" do
-      it "Keys should contains all keys in topological order" do
-        dag = DagCr::Graph(Int32, Nil).new
-        dag.add(4, nil)
-        dag.add(9, nil)
-        dag.add(1, nil)
-        dag.add(2, nil)
-        dag.add(3, nil)
-        dag.add(5, nil)
-        dag.add(6, nil)
-        dag.add(7, nil)
-        dag.add(8, nil)
-        dag.add_edge(1, 3)
-        dag.add_edge(5, 6)
-        dag.add_edge(5, 7)
-        dag.add_edge(6, 4)
-        dag.keys.should eq([9, 1, 3, 2, 5, 6, 4, 7, 8])
       end
     end
 
     describe "#add" do
-      pending "Some added element should be stored in a hashmap" do
-        dag = DagCr::Graph(String, Int32).new
-        dag.add("one", 1)
-        dag.add("two", 2)
-        dag.add("three", 3)
+      it "Some added element should be stored in a hashmap" do
+        dag = Graph(String).new
+        dag.add("one")
+        dag.add("two")
+        dag.add("three")
         size = dag.size
         size.should eq(3)
       end
     end
 
+    describe "#add_edge" do
+      it "Adding an edge should modifiy the sucessors and predecessors of edges" do
+        dag = Graph(Int32).new
+        dag.add(1)
+        dag.add(2)
+        dag.add_edge(1, 2)
+        dag.predecessors(2).should eq([1])
+        dag.successors(1).should eq([2])
+      end
+
+      it "Adding edges will create vertices if they don't exists." do
+        dag = Graph(Int32).new
+        dag.add_edge 2, 3
+        dag.add_edge 1, 2
+        dag.add_edge 3, 4
+        dag.size.should eq 4
+      end
+    end
+
+    describe "#has?" do
+      it "Checking vertices existing or not" do
+        dag = create_test_graph
+        dag.has?(8).should be_true
+        dag.has?(-1).should_not be_true
+      end
+    end
+
+    describe "#has_edge?" do
+      dag = create_test_graph
+      it "Checking edges existing or not" do
+        dag.has_edge?(8, 6).should be_true
+        dag.has_edge?(6, 4).should be_true
+        dag.has_edge?(2, 3).should_not be_true
+        dag.has_edge?(1, 2).should_not be_true
+      end
+      it "Checking edges between non-existent vertices should raise error" do
+        expect_raises VertexNotExistsError do
+          dag.has_edge? -1, -2
+        end
+        expect_raises VertexNotExistsError do
+          dag.has_edge? 1, -1
+        end
+        expect_raises VertexNotExistsError do
+          dag.has_edge? -1, 1
+        end
+      end
+    end
+
+    describe "#predecessors" do
+      it "#predecessors should give back predecessors of vertex in order of edge creation" do
+        dag = create_test_graph
+        dag.predecessors(4).should eq [6]
+        dag.predecessors(7).should eq [8, 4]
+        dag.predecessors(2).empty?.should be_true
+      end
+    end
+
+    describe "#successors" do
+      it "#successors should give back successors of a vertex in order of edge creation" do
+        dag = create_test_graph
+        dag.successors(4).should eq [3, 7]
+        dag.successors(8).should eq [7, 6]
+        dag.successors(2).empty?.should be_true
+      end
+    end
+
+    describe "#delete" do
+      it "Vertex should be deleted." do
+        dag = create_test_graph
+        dag.delete 2
+        dag.delete 6
+        dag.has?(2).should_not be_true
+        dag.has?(6).should_not be_true
+        dag.has?(4).should be_true
+      end
+      it "Deleting nonexistent vertices should raise error" do
+        dag = create_test_graph
+        expect_raises VertexNotExistsError do
+          dag.delete -1
+        end
+      end
+      it "Edges should be deleted." do
+        dag = create_test_graph
+        dag.delete(4, 7)
+        dag.has_edge?(4, 7).should_not be_true
+      end
+      it "Nonexistent edges should be not removed." do
+        dag = create_test_graph
+        dag.has_edge?(7, 2).should_not be_true
+        dag.delete(7, 2)
+        dag.has_edge?(7, 2).should_not be_true
+        dag.delete 2, 2
+        dag.has_edge?(2, 2).should_not be_true
+      end
+      it "Removing edges between non-existent vertices should raise an error." do
+        dag = create_test_graph
+        expect_raises VertexNotExistsError do
+          dag.delete -1, -1
+        end
+        expect_raises VertexNotExistsError do
+          dag.delete -1, 1
+        end
+        expect_raises VertexNotExistsError do
+          dag.delete 1, -1
+        end
+      end
+    end
+
     describe "#root" do
       it "Root gives empty array for empty graph" do
-        dag = DagCr::Graph(Int32, Int32).new
+        dag = Graph(Int32).new
         dag.roots.empty?.should be_true
       end
       it "If only vertices are added to graph, every vertices will be a root." do
-        dag = DagCr::Graph(Int32, Int32).new
-        dag.add(1, 1)
-        dag.add(2, 2)
-        dag.roots.size.should eq(2)
-        dag.roots.should eq([{1, 1}, {2, 2}])
+        dag = Graph(Int32).new
+        (1..9).each { |i| dag.add i }
+        dag.roots.size.should eq 9
+        dag.roots.should eq [1, 2, 3, 4, 5, 6, 7, 8, 9]
       end
       it "Graph of three vertices and one edge will have two roots" do
-        dag = DagCr::Graph(Int32, Int32).new
-        dag.add(1, 1)
-        dag.add(2, 2)
-        dag.add(3, 3)
-        dag.add_edge(1, 2)
-        dag.roots.size.should eq(2)
-        dag.roots.should eq([{1, 1}, {3, 3}])
+        dag = Graph(Int32).new
+        dag.add 1
+        dag.add 2
+        dag.add 3
+        dag.add_edge 1, 2
+        dag.roots.size.should eq 2
+        dag.roots.should eq [1, 3]
       end
     end
 
     describe "#valid?" do
       it "Cycles should be detected." do
-        dag = DagCr::Graph(Int32, Nil).new
-        dag.add(1, nil)
-        dag.add(2, nil)
-        dag.add(3, nil)
-        dag.add(4, nil)
-        dag.add_edge(1, 2)
-        dag.add_edge(2, 3)
-        dag.add_edge(3, 4)
+        dag = create_test_graph
+        dag.add_edge(3, 6)
+        dag.valid?.should_not be_true
+        dag.delete 3, 6
         dag.valid?.should be_true
-        dag.add_edge(4, 2)        
+        dag.add_edge 2, 2
         dag.valid?.should_not be_true
       end
+    end
 
-      it "Cycles should be detected from a given vertex." do
-        dag = DagCr::Graph(Int32, Nil).new
-        dag.add(1, nil)
-        dag.add(2, nil)
-        dag.add(3, nil)
-        dag.add(4, nil)
-        dag.add_edge(1, 2)
-        dag.add_edge(2, 3)
-        dag.add_edge(3, 4)
-        dag.valid?(3).should be_true
-        dag.add_edge(4, 2)        
-        dag.valid?(3).should_not be_true
+    describe "#each" do
+      it "each should give back vertices in topological order" do
+        dag = create_test_graph
+        dag.size.should eq 9
+        dag.to_a.should eq [1, 2, 5, 9, 8, 6, 4, 3, 7]
+      end
+      it "each should raise an error if cycle is detected" do
+        dag = create_test_graph
+        dag.add_edge 3, 2
+        dag.add_edge 2, 8
+        expect_raises CycleDetectedError do
+          dag.each { |v| v }
+        end
+      end
+
+      it "#each : Iterator(V) should give back vertices in topological order" do
+        dag = create_test_graph
+        dag.each.size.should eq 9
+        dag.each.to_a.should eq [1, 2, 5, 8, 9, 6, 4, 3, 7]
+      end
+
+      it "iterator should raise an error if cycle is detected" do
+        dag = create_test_graph
+        dag.add_edge 3, 2
+        dag.add_edge 2, 8
+        expect_raises CycleDetectedError do
+          dag.each.size
+        end
       end
     end
   end
-
 end

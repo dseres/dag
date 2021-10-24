@@ -190,16 +190,32 @@ describe DagCr do
     end
 
     describe "#each" do
-      dag = create_test_graph
       it "each should give back vertices in topological order" do
+        dag = create_test_graph
         dag.size.should eq 9
         dag.to_a.should eq [1, 2, 5, 9, 8, 6, 4, 3, 7]
       end
       it "each should raise an error if cycle is detected" do
+        dag = create_test_graph
         dag.add_edge 3, 2
         dag.add_edge 2, 8
         expect_raises CycleDetectedError do
-          dag.each{|v| v}
+          dag.each { |v| v }
+        end
+      end
+
+      it "#each : Iterator(V) should give back vertices in topological order" do
+        dag = create_test_graph
+        dag.each.size.should eq 9
+        dag.each.to_a.should eq [1, 2, 5, 8, 9, 6, 4, 3, 7]
+      end
+
+      it "iterator should raise an error if cycle is detected" do
+        dag = create_test_graph
+        dag.add_edge 3, 2
+        dag.add_edge 2, 8
+        expect_raises CycleDetectedError do
+          dag.each.size
         end
       end
     end

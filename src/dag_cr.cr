@@ -6,7 +6,7 @@ module DagCr
 
   # Graph class represents a [directed acyclic graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph) with unweighted edges.
   # Graph is represented as adjecency list of its vertices. Graph uses a Hash(V) storing its elements. V must be a uniqe value
-  # identifying a vertex of graph. 
+  # identifying a vertex of graph.
   #
   # Example:
   # ```
@@ -32,10 +32,9 @@ module DagCr
   # ```
   class Graph(V)
     include Enumerable(V)
-    # include Iterable(t)
+    include Iterable(V)
 
     @vertices = {} of V => Adjacency(V)
-
 
     # Adds a new vertex to the graph.
     # If vertex is already exists function will raise VertexExistsError
@@ -66,7 +65,6 @@ module DagCr
       @vertices.has_key?(vertex)
     end
 
-
     # Adds a new edge to graph.
     # Function will insert vertex too if one of the vertices doesn't exists.
     # If edge is already exists it will not add it again.
@@ -74,9 +72,9 @@ module DagCr
     # Example:
     # ```
     # dag = Graph(Int32, String).new
-    # dag.add(1,2)
-    # dag.to_a # => [1, 2]
-    # dag.has_edge?(1,2) # => true
+    # dag.add(1, 2)
+    # dag.to_a            # => [1, 2]
+    # dag.has_edge?(1, 2) # => true
     # ```
     def add_edge(from : V, to : V)
       add from unless has? from
@@ -92,15 +90,14 @@ module DagCr
     # Example:
     # ```
     # dag = Graph(Int32, String).new
-    # dag.add(1,2)
-    # dag.has_edge?(1,2) # => true
+    # dag.add(1, 2)
+    # dag.has_edge?(1, 2) # => true
     # ```
     def has_edge?(from : V, to : V)
       raise VertexNotExistsError.new from unless has? from
       raise VertexNotExistsError.new to unless has? to
       @vertices[from].has_successor?(to) && @vertices[to].has_predecessor?(from)
     end
-
 
     # Two graph equals if they have vertices with same ids and the other has an edge between vertices with same ids if the first graph has an edge.
     #
@@ -126,7 +123,7 @@ module DagCr
     def ==(other : Graph(V))
       return false unless size == other.size
       @vertices.each do |vertex, adjacency|
-         other.has? vertex
+        other.has? vertex
         return false unless other.successors(vertex) == adjacency.successors && other.predecessors(vertex) == adjacency.predecessors
       end
       true
@@ -205,8 +202,8 @@ module DagCr
     # Example:
     # ```
     # dag = Graph(Int32).new
-    # dag.add(1,)
-    # dag.add(2,)
+    # dag.add(1)
+    # dag.add(2)
     # dag.add(1, 2)
     # dag.delete(1, 2)
     # ```
@@ -229,12 +226,12 @@ module DagCr
     # dag.add(1, 2)
     # dag.roots # => [1, 3]
     # ```
-    def roots
-      @vertices.select { |vertex,adjacency| adjacency.root? }.map { |vertex,adjacency| vertex }
+    def roots 
+      @vertices.select { |vertex, adjacency| adjacency.root? }.map { |vertex, adjacency| vertex }
     end
 
     # Calls a given block on every key and vertex pairs stored in the graph topological order.
-    # [Topological order](https://en.wikipedia.org/wiki/Topological_sorting) is computed with Kahn's algorytm. 
+    # [Topological order](https://en.wikipedia.org/wiki/Topological_sorting) is computed with Kahn's algorytm.
     #
     # Example:
     # ```
@@ -245,22 +242,22 @@ module DagCr
     # dag.add(4)
     # dag.add(1, 3)
     # dag.add(2, 4)
-    # dag.each{ |v| v }.to_a # => [1, 2, 3, 4 ]
+    # dag.each { |v| v }.to_a # => [1, 2, 3, 4 ]
     # ```
     def each
       sorted, unsorted = topological_sort
-      raise CycleDetectedError.new(unsorted.keys) if sorted.size() < @vertices.size()
-      sorted.each { |vertex,_| yield(vertex) }
+      raise CycleDetectedError.new(unsorted.keys) if sorted.size < @vertices.size
+      sorted.each { |vertex, _| yield(vertex) }
     end
 
     private def topological_sort
       marked = {} of V => Adjacency(V)
       unmarked = @vertices.clone
-      check_visited( marked, unmarked, roots )
+      check_visited(marked, unmarked, roots)
       {marked, unmarked}
     end
 
-    private def check_visited(marked, unmarked, vertices_to_check) 
+    private def check_visited(marked, unmarked, vertices_to_check)
       vertices_to_check.each do |vertex|
         adjacency = @vertices[vertex]
         if adjacency.predecessors.all? { |p| marked.has_key? p }
@@ -272,7 +269,7 @@ module DagCr
     end
 
     # Validate a graph, whether it is acyclic.
-    # 
+    #
     # Example:
     # ```
     # dag = )Graph(Int32).new
@@ -284,12 +281,50 @@ module DagCr
     # dag.add_edge(2, 3)
     # dag.add_edge(3, 4)
     # dag.valid? # => true
-    # dag.add_edge(4, 2)        
+    # dag.add_edge(4, 2)
     # dag.valid? # => false
     # ```
     def valid?
       sorted, _unsorted = topological_sort
       sorted.size == @vertices.size
+    end
+
+    # Retreives an iterator of the graph. The iterator will retreive vertices
+    # in topological order.
+    def each : Iterator(V)
+      GraphIterator(V).new(self)
+    end
+
+    private class GraphIterator(V)
+      include Iterator(V)
+
+      @graph : Graph(V)
+      @visited = Set(V).new
+      @vertices_to_check : Array(V)
+
+      def initialize(@graph)
+        @vertices_to_check = graph.roots
+      end
+
+      def next
+        next_vertex = find_next
+        if !next_vertex.nil?
+          @visited.add next_vertex
+          @vertices_to_check.delete next_vertex
+          @graph.successors(next_vertex).each{|successors| @vertices_to_check.push successors }
+          return next_vertex
+        end
+        raise CycleDetectedError.new(@vertices_to_check) unless @vertices_to_check.empty?
+        stop
+      end
+
+      private def find_next
+        @vertices_to_check.find do |vertex|
+          @graph.predecessors(vertex).all? do |predecessor|
+            @visited.includes? predecessor
+          end
+        end
+      end
     end
   end
 
@@ -304,12 +339,11 @@ module DagCr
       super("Vertex (#{vertex}) doesn't exists in graph.")
     end
   end
-  
+
   # Raised when a graph is cyclic.
   #
   # If a cycle is detected, this error will be risen with the key of the vertex found twice in a going-over.
   class CycleDetectedError < Exception
-
     # Key will be the key of vertex found twice in a going-over of graph.
     def initialize(v)
       super("Cycle detected in graph with keys #{v}")
@@ -325,7 +359,7 @@ module DagCr
     end
 
     def clone
-      v = Adjacency(V).new 
+      v = Adjacency(V).new
       v.predecessors = @predecessors.clone
       v.successors = @successors.clone
       v
@@ -335,13 +369,12 @@ module DagCr
       predecessors.empty?
     end
 
-    def has_successor? (vertex : V)
+    def has_successor?(vertex : V)
       !@successors.index(vertex).nil?
     end
 
-    def has_predecessor? (vertex : V)
+    def has_predecessor?(vertex : V)
       !@predecessors.index(vertex).nil?
     end
-
   end
 end

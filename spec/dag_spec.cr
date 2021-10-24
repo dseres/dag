@@ -1,8 +1,8 @@
 require "./spec_helper"
 
-include DagCr
+include Dag
 
-describe DagCr do
+describe Dag do
   describe Graph do
     describe "#new" do
       it "A new Graph should contain no element" do

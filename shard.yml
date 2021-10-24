@@ -1,9 +1,9 @@
 name: dag
-version: 0.1.0
+version: 0.9.0
 
 authors:
   - David Seres <dseres001@gmail.com>
 
-crystal: 1.1.1
+crystal: 1.2.1
 
 license: MIT

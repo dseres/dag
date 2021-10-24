@@ -1,7 +1,7 @@
 # A Crystal module to handle [directed acyclic graphs](https://en.wikipedia.org/wiki/Directed_acyclic_graph) (DAG)
 #
 # This DAG implementation can be used for creating schedulers. E.g.: running multiple tasks which has predefined dependencies.
-module DagCr
+module Dag
   VERSION = "0.1.0"
 
   # Graph class represents a [directed acyclic graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph) with unweighted edges.

@@ -1,5 +1,5 @@
 require "spec"
-require "../src/dag_cr"
+require "../src/dag"
 
 def create_test_graph
     dag = Graph(Int32).new 

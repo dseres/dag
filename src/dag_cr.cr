@@ -36,6 +36,72 @@ module DagCr
 
     @vertices = {} of V => Adjacency(V)
 
+
+    # Adds a new vertex to the graph.
+    # If vertex is already exists function will raise VertexExistsError
+    # Example:
+    # ```
+    # dag = Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
+    # dag.to_a # => [1,2]
+    # ```
+    def add(vertex : V)
+      raise VertexExistsError.new(vertex) if has?(vertex)
+      @vertices[vertex] = Adjacency(V).new
+    end
+
+    # Checks whether a vertex exists in graph
+    #
+    # Example:
+    # ```
+    # dag = Graph(Int32).new
+    # dag.add(1)
+    # dag.add(2)
+    # dag.has? 1 # => true
+    # dag.has? 2 # => true
+    # dag.has? 3 # => false
+    # ```
+    def has?(vertex : V)
+      @vertices.has_key?(vertex)
+    end
+
+
+    # Adds a new edge to graph.
+    # Function will insert vertex too if one of the vertices doesn't exists.
+    # If edge is already exists it will not add it again.
+    #
+    # Example:
+    # ```
+    # dag = Graph(Int32, String).new
+    # dag.add(1,2)
+    # dag.to_a # => [1, 2]
+    # dag.has_edge?(1,2) # => true
+    # ```
+    def add_edge(from : V, to : V)
+      add from unless has? from
+      add to unless has? to
+      return if has_edge? from, to
+      @vertices[from].successors.push to
+      @vertices[to].predecessors.push from
+    end
+
+    # Checks whether an edge exists.
+    # Raises VertexNotExistsError when one of the vertices doesn't exists.
+    #
+    # Example:
+    # ```
+    # dag = Graph(Int32, String).new
+    # dag.add(1,2)
+    # dag.has_edge?(1,2) # => true
+    # ```
+    def has_edge?(from : V, to : V)
+      raise VertexNotExistsError.new from unless has? from
+      raise VertexNotExistsError.new to unless has? to
+      @vertices[from].has_successor?(to) && @vertices[to].has_predecessor?(from)
+    end
+
+
     # Two graph equals if they have vertices with same ids and the other has an edge between vertices with same ids if the first graph has an edge.
     #
     # Example:
@@ -64,10 +130,6 @@ module DagCr
         return false unless other.successors(vertex) == adjacency.successors && other.predecessors(vertex) == adjacency.predecessors
       end
       true
-    end
-
-    def has?(vertex : V)
-      @vertices.has_key?(vertex)
     end
 
     # Compares with other vertex. It is allways false.
@@ -118,44 +180,6 @@ module DagCr
       @vertices[vertex].successors
     end
 
-    # Adds a new vertex to the graph.
-    #
-    # Example:
-    # ```
-    # dag = Graph(Int32).new
-    # dag.add(1)
-    # dag.add(2)
-    # ```
-    def add(vertex : V)
-      raise VertexExistsError.new(vertex) if has?(vertex)
-      @vertices[vertex] = Adjacency(V).new
-    end
-
-    def has_edge?(from : V, to : V)
-      @vertices[from].has_successor?(to) && @vertices[to].has_predecessor?(from)
-    end
-
-    # Adds a new edge to graph.
-    # Function will insert vertex too if one of the vertices doesn't exists.
-    # If edge is already exists it will not add it again.
-    #
-    # Example:
-    # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1)
-    # dag.add(2)
-    # dag.add(1, 2)
-    # dag.predecessors[2] # => [1]
-    # dag.successors[1]   # => [2]
-    # ```
-    def add_edge(from : V, to : V)
-      add from unless has? from
-      add to unless has? to
-      return if has_edge? from, to
-      @vertices[from].successors.push to
-      @vertices[to].predecessors.push from
-    end
-
     # Deletes a vertex from graph.
     # Raises VertexNotExistsError when *vertex* doesn't exists in graph.
     #
@@ -170,13 +194,13 @@ module DagCr
     # ```
     def delete(vertex : V)
       raise VertexNotExistsError.new vertex unless has? vertex
-      @vertices[vertex].successors.each &.predecessors.delete vertex
-      @vertices[vertex].predecessors.each &.successors.delete vertex
+      @vertices[vertex].successors.each { |s| @vertices[s].predecessors.delete vertex }
+      @vertices[vertex].predecessors.each { |p| @vertices[p].successors.delete vertex }
       @vertices.delete vertex
     end
 
-    # Deletes an edge from graph. If there is no edge between *from* and *to*,
-    # function will do nothing
+    # Deletes an edge from graph. If one of the vertices doesn't exists, function will raise VertexNotExistsError.
+    # If edge doesn't exists, function will do nothing.
     #
     # Example:
     # ```
@@ -187,6 +211,8 @@ module DagCr
     # dag.delete(1, 2)
     # ```
     def delete(from : V, to : V)
+      raise VertexNotExistsError.new from unless has? from
+      raise VertexNotExistsError.new to unless has? to
       return unless has_edge? from, to
       @vertices[from].successors.delete to
       @vertices[to].predecessors.delete from

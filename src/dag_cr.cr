@@ -209,11 +209,16 @@ module DagCr
     # dag.each{ |v| v }.to_a # => [1, 2, 3, 4 ]
     # ```
     def each
+      sorted, unsorted = topological_sort
+      raise CycleDetectedError.new(unsorted.keys) if sorted.size() < @vertices.size()
+      sorted.each { |v,_| yield(v) }
+    end
+
+    private def topological_sort
       marked = {} of T => Vertex(T)
       unmarked = @vertices.clone
       check_visited( marked, unmarked, roots )
-      raise CycleDetectedError.new(unmarked.keys) if marked.size() < @vertices.size()
-      marked.each { |v,_| yield(v) }
+      {marked, unmarked}
     end
 
     private def check_visited(marked, unmarked, values) 
@@ -244,12 +249,8 @@ module DagCr
     # dag.valid? # => false
     # ```
     def valid?
-      begin
-        each{|v| v}
-        return true
-      rescue CycleDetectedError
-        return false
-      end
+      sorted, _unsorted = topological_sort
+      sorted.size == @vertices.size
     end
   end
 

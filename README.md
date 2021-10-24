@@ -36,4 +36,4 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [David Seres](https://github.com/your-github-user) - creator and maintainer
+- [dseres](https://github.com/your-github-user) - creator and maintainer

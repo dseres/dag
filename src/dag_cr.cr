@@ -5,7 +5,8 @@ module DagCr
   VERSION = "0.1.0"
 
   # Graph class represents a [directed acyclic graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph) with unweighted edges.
-  # Graph uses a Hash to store its data. K is a uniqe identifier of a vertex, and V can hold any properties for it.
+  # Graph is represented as adjecency list of its vertices. Graph uses a Hash(V) storing its elements. V must be a uniqe value
+  # identifying a vertex of graph. 
   #
   # Example:
   # ```
@@ -29,11 +30,11 @@ module DagCr
   # dag.predecessors(4) # => [6]
   # dag[3]              # => nil
   # ```
-  class Graph(T)
-    include Enumerable(T)
+  class Graph(V)
+    include Enumerable(V)
     # include Iterable(t)
 
-    @vertices = {} of T => Vertex(T)
+    @vertices = {} of V => Adjacency(V)
 
     # Two graph equals if they have vertices with same ids and the other has an edge between vertices with same ids if the first graph has an edge.
     #
@@ -56,20 +57,20 @@ module DagCr
     #
     # dag1 == dag2 # => true
     # ```
-    def ==(other : Graph(T))
+    def ==(other : Graph(V))
       return false unless size == other.size
-      @vertices.each do |value, vertex|
-         other.includes? value
-        return false unless other.successors(value) == vertex.successors && other.predecessors(value) == vertex.predecessors
+      @vertices.each do |vertex, adjacency|
+         other.has? vertex
+        return false unless other.successors(vertex) == adjacency.successors && other.predecessors(vertex) == adjacency.predecessors
       end
       true
     end
 
-    def includes?(v : T)
-      @vertices.has_key?(v)
+    def has?(vertex : V)
+      @vertices.has_key?(vertex)
     end
 
-    # Compares with other value. It is allways false.
+    # Compares with other vertex. It is allways false.
     #
     # Example:
     # ```
@@ -95,8 +96,8 @@ module DagCr
     # dag.add(2, 4)
     # dag.predecessors(2) # => [1]
     # ```
-    def predecessors(value : T)
-      @vertices[value].predecessors
+    def predecessors(vertex : V)
+      @vertices[vertex].predecessors
     end
 
     # Gets the successors of a vertex identified by key.
@@ -113,8 +114,8 @@ module DagCr
     # dag.add(2, 4)
     # dag.successors(2) # => [3,4]
     # ```
-    def successors(value : T)
-      @vertices[value].successors
+    def successors(vertex : V)
+      @vertices[vertex].successors
     end
 
     # Adds a new vertex to the graph.
@@ -125,11 +126,12 @@ module DagCr
     # dag.add(1)
     # dag.add(2)
     # ```
-    def add(v : T)
-      @vertices[v] = Vertex(T).new
+    def add(vertex : V)
+      raise VertexExistsInGraphError.new(vertex) if has?(vertex)
+      @vertices[vertex] = Adjacency(V).new
     end
 
-    # Adds a new edge to graph. If vertices doesn't exists in graph, they are also added.
+    # Adds a new edge to graph.
     # Function raises KeyError if one of the vertices doesn't exists.
     #
     # Example:
@@ -141,7 +143,7 @@ module DagCr
     # dag.predecessors[2] # => [1]
     # dag.successors[1]   # => [2]
     # ```
-    def add_edge(from : T, to : T)
+    def add_edge(from : V, to : V)
       @vertices[from].successors.push to
       @vertices[to].predecessors.push from
     end
@@ -157,10 +159,10 @@ module DagCr
     # dag.delete(2)
     # dag.keys # => [1]
     # ```
-    def delete(v : T)
-      @vertices[v].successors.each &.predecessors.delete v
-      @vertices[v].predecessors.each &.successors.delete v
-      @vertices.delete v
+    def delete(vertex : V)
+      @vertices[vertex].successors.each &.predecessors.delete v
+      @vertices[vertex].predecessors.each &.successors.delete v
+      @vertices.delete vertex
     end
 
     # Deletes an edge from graph. If there is no edge between *from* and *to*,
@@ -174,12 +176,12 @@ module DagCr
     # dag.add(1, 2)
     # dag.delete(1, 2)
     # ```
-    def delete(from : T, to : T)
+    def delete(from : V, to : V)
       @vertices[from].successors.delete to
       @vertices[to].predecessors.delete from
     end
 
-    # Retreives all the root nodes of the graph
+    # Retreives all the root vertexs of the graph
     #
     # Example:
     # ```
@@ -191,10 +193,10 @@ module DagCr
     # dag.roots # => [1, 3]
     # ```
     def roots
-      @vertices.select { |value,vertex| vertex.root? }.map { |value,vertex| value }
+      @vertices.select { |vertex,adjacency| adjacency.root? }.map { |vertex,adjacency| vertex }
     end
 
-    # Calls a given block on every key and value pairs stored in the graph topological order.
+    # Calls a given block on every key and vertex pairs stored in the graph topological order.
     # [Topological order](https://en.wikipedia.org/wiki/Topological_sorting) is computed with Kahn's algorytm. 
     #
     # Example:
@@ -211,23 +213,23 @@ module DagCr
     def each
       sorted, unsorted = topological_sort
       raise CycleDetectedError.new(unsorted.keys) if sorted.size() < @vertices.size()
-      sorted.each { |v,_| yield(v) }
+      sorted.each { |vertex,_| yield(vertex) }
     end
 
     private def topological_sort
-      marked = {} of T => Vertex(T)
+      marked = {} of V => Adjacency(V)
       unmarked = @vertices.clone
       check_visited( marked, unmarked, roots )
       {marked, unmarked}
     end
 
-    private def check_visited(marked, unmarked, values) 
-      values.each do |v|
-        vertex = @vertices[v]
-        if vertex.predecessors.all? { |p| marked.has_key? p }
-          marked[v] = vertex
-          unmarked.delete v
-          check_visited marked, unmarked, vertex.successors
+    private def check_visited(marked, unmarked, vertices_to_check) 
+      vertices_to_check.each do |vertex|
+        adjacency = @vertices[vertex]
+        if adjacency.predecessors.all? { |p| marked.has_key? p }
+          marked[vertex] = adjacency
+          unmarked.delete vertex
+          check_visited marked, unmarked, adjacency.successors
         end
       end
     end
@@ -254,6 +256,12 @@ module DagCr
     end
   end
 
+  class VertexExistsInGraphError < Exception
+    def initialize(vertex)
+      super("Vertex #{vertex} is already exists in graph.")
+    end
+  end
+  
   # Raised when a graph is cyclic.
   #
   # If a cycle is detected, this error will be risen with the key of the vertex found twice in a going-over.
@@ -265,19 +273,16 @@ module DagCr
     end
   end
 
-  private class Vertex(T)
-    property predecessors = [] of T
-    property successors = [] of T
+  private class Adjacency(V)
+    property predecessors = [] of V
+    property successors = [] of V
 
-    def initialize()
-    end
-
-    def ==(other : Vertex(T))
+    def ==(other : Adjacency(V))
       @predecessors == other.predecessors && @successors == other.successors
     end
 
     def clone
-      v = Vertex(T).new 
+      v = Adjacency(V).new 
       v.predecessors = @predecessors.clone
       v.successors = @successors.clone
       v

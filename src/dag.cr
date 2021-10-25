@@ -11,14 +11,8 @@ module Dag
   # Example:
   # ```
   # dag = Graph(Int32).new
-  # dag.add(1)
-  # dag.add(2)
-  # dag.add(3)
-  # dag.add(4)
-  # dag.add(5)
-  # dag.add_edge(1, 3)
-  # dag.add_edge(1, 2)
-  # dag.add_edge(3, 4)
+  # dag.add 1,2,3,4,5
+  # dag.add_edge({1, 3}, {1, 2}, {3, 4 })
   # ```
   class Graph(V)
     include Enumerable(V)
@@ -38,6 +32,11 @@ module Dag
     def add(vertex : V)
       raise VertexExistsError.new(vertex) if has?(vertex)
       @vertices[vertex] = Adjacency(V).new
+    end
+
+    # :ditto:
+    def add( *vertices : V)
+      vertices.each {|vertex| add vertex}
     end
 
     # Checks whether a vertex exists in graph
@@ -72,6 +71,16 @@ module Dag
       return if has_edge? from, to
       @vertices[from].successors.push to
       @vertices[to].predecessors.push from
+    end
+
+    # :ditto:
+    def add_edge( edge : Tuple(V,V))
+      add_edge( edge[0], edge[1])
+    end
+
+    # :ditto:
+    def add_edge( *edges : Tuple(V,V))
+      edges.each{ | edge | add_edge edge }
     end
 
     # Checks whether an edge exists.

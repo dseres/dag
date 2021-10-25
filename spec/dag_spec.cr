@@ -128,29 +128,32 @@ describe Dag do
           dag.delete -1
         end
       end
+    end
+
+    describe "#delete_edge" do 
       it "Edges should be deleted." do
         dag = create_test_graph
-        dag.delete(4, 7)
+        dag.delete_edge 4, 7
         dag.has_edge?(4, 7).should_not be_true
       end
       it "Nonexistent edges should be not removed." do
         dag = create_test_graph
         dag.has_edge?(7, 2).should_not be_true
-        dag.delete(7, 2)
+        dag.delete_edge 7, 2
         dag.has_edge?(7, 2).should_not be_true
-        dag.delete 2, 2
+        dag.delete_edge 2, 2
         dag.has_edge?(2, 2).should_not be_true
       end
       it "Removing edges between non-existent vertices should raise an error." do
         dag = create_test_graph
         expect_raises VertexNotExistsError do
-          dag.delete -1, -1
+          dag.delete_edge -1, -1
         end
         expect_raises VertexNotExistsError do
-          dag.delete -1, 1
+          dag.delete_edge -1, 1
         end
         expect_raises VertexNotExistsError do
-          dag.delete 1, -1
+          dag.delete_edge 1, -1
         end
       end
     end
@@ -182,7 +185,7 @@ describe Dag do
         dag = create_test_graph
         dag.add_edge(3, 6)
         dag.valid?.should_not be_true
-        dag.delete 3, 6
+        dag.delete_edge 3, 6
         dag.valid?.should be_true
         dag.add_edge 2, 2
         dag.valid?.should_not be_true

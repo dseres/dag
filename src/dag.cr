@@ -192,12 +192,12 @@ module Dag
     # Example:
     # ```
     # dag = Graph(Int32).new
-    # dag.add(1)
-    # dag.add(2)
-    # dag.add(1, 2)
-    # dag.delete(1, 2)
+    # dag.add 1
+    # dag.add 2
+    # dag.add 1, 2
+    # dag.delete_edge 1, 2
     # ```
-    def delete(from : V, to : V)
+    def delete_edge(from : V, to : V)
       raise VertexNotExistsError.new from unless has? from
       raise VertexNotExistsError.new to unless has? to
       return unless has_edge? from, to

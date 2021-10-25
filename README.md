@@ -1,14 +1,11 @@
-# dag
+# DAG - Directed Acyclic Graph  API
 
-A Crystal module to handle [directed acyclic graphs](https://en.wikipedia.org/wiki/Directed_acyclic_graph) (DAG)
+[![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://dseres.github.io/dag/)
+[![GitHub release](https://img.shields.io/github/release/dseres/dag.svg)](https://github.com/dseres/dag/releases)
 
+A [directed acyclic graphs](https://en.wikipedia.org/wiki/Directed_acyclic_graph) (DAG) written in the [crystal](https://crystal-lang.org/) programming languge.
 This DAG implementation can be used for creating schedulers. E.g.: running multiple tasks which has predefined dependencies.
 
-Latest documentation:
-[![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://dseres.github.io/dag/)
-
-Releases: 
-[![GitHub release](https://img.shields.io/github/release/dseres/dag.svg)](https://github.com/dseres/dag/releases)
 
 ## Installation
 
@@ -17,7 +14,7 @@ Releases:
    ```yaml
    dependencies:
      dag:
-       github: your-github-user/dag
+       github: dseres/dag
    ```
 
 2. Run `shards install`
@@ -52,4 +49,4 @@ dag.to_a # => [1, 2, 5, 9, 8, 6, 4, 3, 7]
 
 ## Contributors
 
-- [dseres](https://github.com/your-github-user) - creator and maintainer
+- [dseres](https://github.com/dseres) - creator and maintainer

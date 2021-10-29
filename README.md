@@ -1,7 +1,9 @@
 # DAG - Directed Acyclic Graph  API
 
-[![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://dseres.github.io/dag/)
+[![Built with Crystal](https://img.shields.io/badge/built%20with-crystal-000000.svg?style=flat-square)](https://crystal-lang.org/)
+[![Crystal CI](https://github.com/runcobo/runcobo/actions/workflows/crystal.yml/badge.svg)](https://github.com/dseres/dag/actions/workflows/crystal.yml)
 [![GitHub release](https://img.shields.io/github/release/dseres/dag.svg)](https://github.com/dseres/dag/releases)
+[![api docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://dseres.github.io/dag/)
 
 A [directed acyclic graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph) (DAG) API written in the [crystal](https://crystal-lang.org/) programming languge.
 This DAG implementation can be used for creating schedulers. E.g.: running multiple tasks which has predefined dependencies.

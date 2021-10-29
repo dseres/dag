@@ -21,7 +21,7 @@ This DAG implementation can be used for creating schedulers. E.g.: running multi
 
 ## Usage
 
-Create a new Graph object. You can add and delete vertices and edges easily. If you enumarate the vertices with the #each method, the enumeration will be topologically sorted. 
+Create a new Graph object. You can add and delete vertices and edges easily. If you enumarate the vertices with the #each method, the enumeration will be topologically sorted. The graph structure uses adjacency lists in the backend (implemented with Hash(K,V)), and you can store any hashable objects in it. 
 
 ```crystal
 require "dag"

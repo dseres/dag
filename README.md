@@ -3,7 +3,7 @@
 [![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://dseres.github.io/dag/)
 [![GitHub release](https://img.shields.io/github/release/dseres/dag.svg)](https://github.com/dseres/dag/releases)
 
-A [directed acyclic graphs](https://en.wikipedia.org/wiki/Directed_acyclic_graph) (DAG) written in the [crystal](https://crystal-lang.org/) programming languge.
+A [directed acyclic graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph) (DAG) API written in the [crystal](https://crystal-lang.org/) programming languge.
 This DAG implementation can be used for creating schedulers. E.g.: running multiple tasks which has predefined dependencies.
 
 

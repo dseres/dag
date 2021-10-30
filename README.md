@@ -27,7 +27,7 @@ Create a new Graph object. You can add and delete vertices and edges easily. If 
 
 ```crystal
 require "dag"
-dag = Graph(Int32).new 
+dag = Dag::Graph(Int32).new 
 (1...10).each { |i| dag.add i}
 dag.add_edge({1, 3} , {5, 9} , {8, 7} , {8, 6} , {6, 4} , {4, 3} , {4, 7})
 dag.successors 4 # => [3,7]

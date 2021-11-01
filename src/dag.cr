@@ -1,6 +1,3 @@
-# A Crystal module to handle [directed acyclic graphs](https://en.wikipedia.org/wiki/Directed_acyclic_graph) (DAG)
-#
-# This DAG implementation can be used for creating schedulers. E.g.: running multiple tasks which has predefined dependencies.
 module Dag
   VERSION = "0.1.0"
 
@@ -10,9 +7,9 @@ module Dag
   #
   # Example:
   # ```
-  # dag = Graph(Int32).new
+  # dag = Dag::Graph(Int32).new
   # dag.add 1,2,3,4,5
-  # dag.add_edge({1, 3}, {1, 2}, {3, 4 })
+  # dag.add_edge({1, 3}, {1, 2}, {3, 4})
   # ```
   class Graph(V)
     include Enumerable(V)
@@ -24,9 +21,9 @@ module Dag
     # If vertex is already exists function will raise VertexExistsError
     # Example:
     # ```
-    # dag = Graph(Int32).new
-    # dag.add(1)
-    # dag.add(2)
+    # dag = Dag::Graph(Int32).new
+    # dag.add 1 
+    # dag.add 2 
     # dag.to_a # => [1,2]
     # ```
     def add(vertex : V)
@@ -43,9 +40,9 @@ module Dag
     #
     # Example:
     # ```
-    # dag = Graph(Int32).new
-    # dag.add(1)
-    # dag.add(2)
+    # dag = Dag::Graph(Int32).new
+    # dag.add 1 
+    # dag.add 2 
     # dag.has? 1 # => true
     # dag.has? 2 # => true
     # dag.has? 3 # => false
@@ -60,10 +57,10 @@ module Dag
     #
     # Example:
     # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, 2)
-    # dag.to_a            # => [1, 2]
-    # dag.has_edge?(1, 2) # => true
+    # dag = Dag::Graph(Int32, String).new
+    # dag.add_edge 1,2
+    # dag.to_a # => [1, 2]
+    # dag.has_edge? 1, 2 # => true
     # ```
     def add_edge(from : V, to : V)
       add from unless has? from
@@ -88,9 +85,9 @@ module Dag
     #
     # Example:
     # ```
-    # dag = Graph(Int32, String).new
-    # dag.add(1, 2)
-    # dag.has_edge?(1, 2) # => true
+    # dag = Dag::Graph(Int32, String).new
+    # dag.add_edge 1, 2
+    # dag.has_edge? 1, 2 # => true
     # ```
     def has_edge?(from : V, to : V)
       raise VertexNotExistsError.new from unless has? from
@@ -102,19 +99,19 @@ module Dag
     #
     # Example:
     # ```
-    # dag1 = Graph(Int32).new
-    # dag1.add(1)
-    # dag1.add(3)
-    # dag1.add(5)
-    # dag1.add_edge(1, 3)
-    # dag1.add_edge(5, 3)
+    # dag1 = Dag::Graph(Int32).new
+    # dag1.add 1
+    # dag1.add 3
+    # dag1.add 5
+    # dag1.add_edge 1, 3
+    # dag1.add_edge 5, 3
     #
-    # dag2 = Graph(Int32).new
-    # dag2.add(1)
-    # dag2.add(3)
-    # dag2.add(5)
-    # dag2.add_edge(1, 3)
-    # dag2.add_edge(5, 3)
+    # dag2 = Dag::Graph(Int32).new
+    # dag2.add 1 
+    # dag2.add 3 
+    # dag2.add 5 
+    # dag2.add_edge 1, 3
+    # dag2.add_edge 5, 3
     # dag1.should eq(dag2)
     #
     # dag1 == dag2 # => true
@@ -132,7 +129,7 @@ module Dag
     #
     # Example:
     # ```
-    # dag = Graph(Int32).new
+    # dag = Dag::Graph(Int32).new
     # dag.add(1)
     # dag == 1 # => false
     # dag == 2 # => false
@@ -144,15 +141,10 @@ module Dag
     # Gets the predecessors of a vertex identified by key.
     # Example:
     # ```
-    # dag = Graph(Int32).new
-    # dag.add(1)
-    # dag.add(2)
-    # dag.add(3)
-    # dag.add(4)
-    # dag.add(1, 2)
-    # dag.add(2, 3)
-    # dag.add(2, 4)
-    # dag.predecessors(2) # => [1]
+    # dag = Dag::Graph(Int32).new
+    # dag.add 1, 2, 3, 4
+    # dag.add_edge({1, 2}, {2, 3}, {2, 4})
+    # dag.predecessors 2 # => [1]
     # ```
     def predecessors(vertex : V)
       @vertices[vertex].predecessors
@@ -162,14 +154,9 @@ module Dag
     #
     # Example:
     # ```
-    # dag = Graph(Int32).new
-    # dag.add(1)
-    # dag.add(2)
-    # dag.add(3)
-    # dag.add(4)
-    # dag.add(1, 2)
-    # dag.add(2, 3)
-    # dag.add(2, 4)
+    # dag = Dag::Graph(Int32).new
+    # dag.add 1, 2, 3, 4
+    # dag.add_edge({1, 2}, {2, 3}, {2, 4})
     # dag.successors(2) # => [3,4]
     # ```
     def successors(vertex : V)
@@ -181,11 +168,11 @@ module Dag
     #
     # Example:
     # ```
-    # dag = Graph(Int32).new
-    # dag.add(1)
-    # dag.add(2)
-    # dag.add(1, 2)
-    # dag.delete(2)
+    # dag = Dag::Graph(Int32).new
+    # dag.add 1
+    # dag.add 2
+    # dag.add_edge 1, 2
+    # dag.delete 2
     # dag.keys # => [1]
     # ```
     def delete(vertex : V)
@@ -200,10 +187,10 @@ module Dag
     #
     # Example:
     # ```
-    # dag = Graph(Int32).new
+    # dag = Dag::Graph(Int32).new
     # dag.add 1
     # dag.add 2
-    # dag.add 1, 2
+    # dag.add_edge 1, 2
     # dag.delete_edge 1, 2
     # ```
     def delete_edge(from : V, to : V)
@@ -218,11 +205,9 @@ module Dag
     #
     # Example:
     # ```
-    # dag = Graph(Int32).new
-    # dag.add(1)
-    # dag.add(2)
-    # dag.add(3)
-    # dag.add(1, 2)
+    # dag = Dag::Graph(Int32).new
+    # dag.add 1, 2, 3
+    # dag.add_edge 1, 2
     # dag.roots # => [1, 3]
     # ```
     def roots 
@@ -234,13 +219,9 @@ module Dag
     #
     # Example:
     # ```
-    # dag = Graph(Int32).new
-    # dag.add(1)
-    # dag.add(2)
-    # dag.add(3)
-    # dag.add(4)
-    # dag.add(1, 3)
-    # dag.add(2, 4)
+    # dag = Dag::Graph(Int32).new
+    # dag.add 1, 2, 3, 4
+    # dag.add_edge({1, 2}, {3, 4})
     # dag.each { |v| v }.to_a # => [1, 2, 3, 4 ]
     # ```
     def each
@@ -271,14 +252,9 @@ module Dag
     #
     # Example:
     # ```
-    # dag = )Graph(Int32).new
-    # dag.add(1)
-    # dag.add(2)
-    # dag.add(3)
-    # dag.add(4)
-    # dag.add_edge(1, 2)
-    # dag.add_edge(2, 3)
-    # dag.add_edge(3, 4)
+    # dag = Dag::Graph(Int32).new
+    # dag.add 1, 2, 3, 4
+    # dag.add_edge({1, 2}, {2, 3}, {3, 4})
     # dag.valid? # => true
     # dag.add_edge(4, 2)
     # dag.valid? # => false
@@ -290,6 +266,15 @@ module Dag
 
     # Retreives an iterator of the graph. The iterator will retreive vertices
     # in topological order.
+    #
+    # Example:
+    # ```
+    # dag = Dag::Graph(Int32).new
+    # (1...10).each { |i| dag.add i }
+    # dag.add_edge({1, 3}, {5, 9}, {8, 7}, {8, 6}, {6, 4}, {4, 3}, {4, 7})
+    # dag.each.size.should eq 9
+    # dag.each.to_a.should eq [1, 2, 5, 8, 9, 6, 4, 3, 7]
+    # ```
     def each : Iterator(V)
       GraphIterator(V).new(self)
     end
@@ -327,12 +312,14 @@ module Dag
     end
   end
 
+  # Raised when someone is adding a vertex to the graph but the vertex is almost presented.
   class VertexExistsError < Exception
     def initialize(vertex)
       super("Vertex (#{vertex}) is already exists in graph.")
     end
   end
 
+  # Raised when someone is deleting a vertex which is not presented in graph.
   class VertexNotExistsError < Exception
     def initialize(vertex)
       super("Vertex (#{vertex}) doesn't exists in graph.")

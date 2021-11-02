@@ -20,6 +20,8 @@ jobs:
       run: shards install
     - name: Run tests
       run: crystal spec
+    - name: Build examples
+      run: shards build
     - name: Build docs
       run: crystal docs
     - name: Deploy docs

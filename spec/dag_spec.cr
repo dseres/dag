@@ -1,7 +1,7 @@
 require "./spec_helper"
 
-require "docspec"
-Docspec.doctest("../src/dag.cr")
+# require "docspec"
+# Docspec.doctest("../src/dag.cr")
 
 include Dag
 
@@ -247,3 +247,4 @@ describe Dag do
     end
   end
 end
+

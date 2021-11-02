@@ -14,6 +14,6 @@ development_dependencies:
     version: ~> 0.14
   # coverage:
   #   github: anykeyh/crystal-coverage
-dependencies:
-  docspec:
-    github: skippi/docspec
+# dependencies:
+#   docspec:
+#     github: skippi/docspec

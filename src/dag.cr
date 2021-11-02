@@ -6,9 +6,10 @@ module Dag
   # identifying a vertex of graph.
   #
   # Example:
+  # [](@doctest)
   # ```
   # dag = Dag::Graph(Int32).new
-  # dag.add 1,2,3,4,5
+  # dag.add 1, 2, 3, 4, 5
   # dag.add_edge({1, 3}, {1, 2}, {3, 4})
   # ```
   class Graph(V)
@@ -20,10 +21,11 @@ module Dag
     # Adds a new vertex to the graph.
     # If vertex is already exists function will raise VertexExistsError
     # Example:
+    # [](@doctest)
     # ```
     # dag = Dag::Graph(Int32).new
-    # dag.add 1 
-    # dag.add 2 
+    # dag.add 1
+    # dag.add 2
     # dag.to_a # => [1,2]
     # ```
     def add(vertex : V)
@@ -39,10 +41,11 @@ module Dag
     # Checks whether a vertex exists in graph
     #
     # Example:
+    # [](@doctest)
     # ```
     # dag = Dag::Graph(Int32).new
-    # dag.add 1 
-    # dag.add 2 
+    # dag.add 1
+    # dag.add 2
     # dag.has? 1 # => true
     # dag.has? 2 # => true
     # dag.has? 3 # => false
@@ -56,8 +59,9 @@ module Dag
     # If edge is already exists it will not add it again.
     #
     # Example:
+    # [](@doctest)
     # ```
-    # dag = Dag::Graph(Int32, String).new
+    # dag = Dag::Graph(Int32).new
     # dag.add_edge 1,2
     # dag.to_a # => [1, 2]
     # dag.has_edge? 1, 2 # => true
@@ -84,8 +88,9 @@ module Dag
     # Raises VertexNotExistsError when one of the vertices doesn't exists.
     #
     # Example:
+    # [](@doctest)
     # ```
-    # dag = Dag::Graph(Int32, String).new
+    # dag = Dag::Graph(Int32).new
     # dag.add_edge 1, 2
     # dag.has_edge? 1, 2 # => true
     # ```
@@ -98,6 +103,7 @@ module Dag
     # Two graph equals if they have vertices with same ids and the other has an edge between vertices with same ids if the first graph has an edge.
     #
     # Example:
+    # [](@doctest)
     # ```
     # dag1 = Dag::Graph(Int32).new
     # dag1.add 1
@@ -107,9 +113,9 @@ module Dag
     # dag1.add_edge 5, 3
     #
     # dag2 = Dag::Graph(Int32).new
-    # dag2.add 1 
-    # dag2.add 3 
-    # dag2.add 5 
+    # dag2.add 1
+    # dag2.add 3
+    # dag2.add 5
     # dag2.add_edge 1, 3
     # dag2.add_edge 5, 3
     # dag1.should eq(dag2)
@@ -128,6 +134,7 @@ module Dag
     # Compares with other vertex. It is allways false.
     #
     # Example:
+    # [](@doctest)
     # ```
     # dag = Dag::Graph(Int32).new
     # dag.add(1)
@@ -140,6 +147,7 @@ module Dag
 
     # Gets the predecessors of a vertex identified by key.
     # Example:
+    # [](@doctest)
     # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1, 2, 3, 4
@@ -154,6 +162,7 @@ module Dag
     #
     # Example:
     # ```
+    # [](@doctest)
     # dag = Dag::Graph(Int32).new
     # dag.add 1, 2, 3, 4
     # dag.add_edge({1, 2}, {2, 3}, {2, 4})
@@ -167,13 +176,14 @@ module Dag
     # Raises VertexNotExistsError when *vertex* doesn't exists in graph.
     #
     # Example:
+    # [](@doctest)
     # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1
     # dag.add 2
     # dag.add_edge 1, 2
     # dag.delete 2
-    # dag.keys # => [1]
+    # dag.has? 2 # => false
     # ```
     def delete(vertex : V)
       raise VertexNotExistsError.new vertex unless has? vertex
@@ -186,6 +196,7 @@ module Dag
     # If edge doesn't exists, function will do nothing.
     #
     # Example:
+    # [](@doctest)
     # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1
@@ -204,25 +215,28 @@ module Dag
     # Retreives all the root vertices of the graph
     #
     # Example:
+    # [](@doctest)
     # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1, 2, 3
     # dag.add_edge 1, 2
     # dag.roots # => [1, 3]
     # ```
-    def roots 
-      @vertices.select { |vertex, adjacency| adjacency.root? }.map { |vertex, adjacency| vertex }
+    def roots
+      @vertices.select { |_vertex, adjacency| adjacency.root? }.map { |vertex, _adjacency| vertex }
     end
 
     # Calls a given block on every key and vertex pairs stored in the graph topological order.
     # [Topological order](https://en.wikipedia.org/wiki/Topological_sorting) is computed with Kahn's algorytm.
     #
     # Example:
+    # [](@doctest)
     # ```
     # dag = Dag::Graph(Int32).new
-    # dag.add 1, 2, 3, 4
+    # dag.add(1, 2, 3, 4)
     # dag.add_edge({1, 2}, {3, 4})
-    # dag.each { |v| v }.to_a # => [1, 2, 3, 4 ]
+    # dag.each { |v| p! v }
+    # dag.to_a # => [1, 2, 3, 4 ]
     # ```
     def each
       sorted, unsorted = topological_sort
@@ -251,6 +265,7 @@ module Dag
     # Validate a graph, whether it is acyclic.
     #
     # Example:
+    # [](@doctest)
     # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1, 2, 3, 4
@@ -268,6 +283,7 @@ module Dag
     # in topological order.
     #
     # Example:
+    # [](@doctest)
     # ```
     # dag = Dag::Graph(Int32).new
     # (1...10).each { |i| dag.add i }

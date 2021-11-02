@@ -1,5 +1,8 @@
 require "./spec_helper"
 
+require "docspec"
+Docspec.doctest("../src/dag.cr")
+
 include Dag
 
 describe Dag do
@@ -150,7 +153,7 @@ describe Dag do
       end
     end
 
-    describe "#delete_edge" do 
+    describe "#delete_edge" do
       it "Edges should be deleted." do
         dag = create_test_graph
         dag.delete_edge 4, 7

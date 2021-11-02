@@ -13,7 +13,6 @@ class DotNode
   def hash
     name.hash
   end
-
 end
 
 def print_as_dot(dag : Dag::Graph(DotNode))
@@ -29,15 +28,13 @@ def print_as_dot(dag : Dag::Graph(DotNode))
   puts "}\n"
 end
 
-
-start_node =  DotNode.new("start")
-one =  DotNode.new("one", "box", "cyan")
-two =  DotNode.new("two", "ellipse", "floralwhite")
-three =  DotNode.new("three")
-four =  DotNode.new("four", "diamond")
-five =  DotNode.new("five")
+start_node = DotNode.new("start")
+one = DotNode.new("one", "box", "cyan")
+two = DotNode.new("two", "ellipse", "floralwhite")
+three = DotNode.new("three")
+four = DotNode.new("four", "diamond")
+five = DotNode.new("five")
 six = DotNode.new("six")
-
 
 dag = Dag::Graph(DotNode).new
 dag.add start_node, four

@@ -20,7 +20,7 @@ module Dag
     # Adds a new vertex to the graph.
     # If vertex is already exists function will raise VertexExistsError
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1
     # dag.add 2
@@ -32,14 +32,14 @@ module Dag
     end
 
     # :ditto:
-    def add( *vertices : V)
-      vertices.each {|vertex| add vertex}
+    def add(*vertices : V)
+      vertices.each { |vertex| add vertex }
     end
 
     # Checks whether a vertex exists in graph
     #
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1
     # dag.add 2
@@ -56,10 +56,10 @@ module Dag
     # If edge is already exists it will not add it again.
     #
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
-    # dag.add_edge 1,2
-    # dag.to_a # => [1, 2]
+    # dag.add_edge 1, 2
+    # dag.to_a           # => [1, 2]
     # dag.has_edge? 1, 2 # => true
     # ```
     def add_edge(from : V, to : V)
@@ -71,20 +71,20 @@ module Dag
     end
 
     # :ditto:
-    def add_edge( edge : Tuple(V,V))
-      add_edge( edge[0], edge[1])
+    def add_edge(edge : Tuple(V, V))
+      add_edge(edge[0], edge[1])
     end
 
     # :ditto:
-    def add_edge( *edges : Tuple(V,V))
-      edges.each{ | edge | add_edge edge }
+    def add_edge(*edges : Tuple(V, V))
+      edges.each { |edge| add_edge edge }
     end
 
     # Checks whether an edge exists.
     # Raises VertexNotExistsError when one of the vertices doesn't exists.
     #
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # dag.add_edge 1, 2
     # dag.has_edge? 1, 2 # => true
@@ -98,7 +98,7 @@ module Dag
     # Two graph equals if they have vertices with same ids and the other has an edge between vertices with same ids if the first graph has an edge.
     #
     # Example:
-      # ```
+    # ```
     # dag1 = Dag::Graph(Int32).new
     # dag1.add 1
     # dag1.add 3
@@ -128,7 +128,7 @@ module Dag
     # Compares with other vertex. It is allways false.
     #
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # dag.add(1)
     # dag == 1 # => false
@@ -140,7 +140,7 @@ module Dag
 
     # Gets the predecessors of a vertex identified by key.
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1, 2, 3, 4
     # dag.add_edge({1, 2}, {2, 3}, {2, 4})
@@ -154,7 +154,7 @@ module Dag
     #
     # Example:
     # ```
-      # dag = Dag::Graph(Int32).new
+    # dag = Dag::Graph(Int32).new
     # dag.add 1, 2, 3, 4
     # dag.add_edge({1, 2}, {2, 3}, {2, 4})
     # dag.successors(2) # => [3,4]
@@ -167,7 +167,7 @@ module Dag
     # Raises VertexNotExistsError when *vertex* doesn't exists in graph.
     #
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1
     # dag.add 2
@@ -186,7 +186,7 @@ module Dag
     # If edge doesn't exists, function will do nothing.
     #
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1
     # dag.add 2
@@ -204,7 +204,7 @@ module Dag
     # Retreives all the root vertices of the graph
     #
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1, 2, 3
     # dag.add_edge 1, 2
@@ -218,7 +218,7 @@ module Dag
     # [Topological order](https://en.wikipedia.org/wiki/Topological_sorting) is computed with Kahn's algorytm.
     #
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # dag.add(1, 2, 3, 4)
     # dag.add_edge({1, 2}, {3, 4})
@@ -252,7 +252,7 @@ module Dag
     # Validate a graph, whether it is acyclic.
     #
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # dag.add 1, 2, 3, 4
     # dag.add_edge({1, 2}, {2, 3}, {3, 4})
@@ -269,7 +269,7 @@ module Dag
     # in topological order.
     #
     # Example:
-      # ```
+    # ```
     # dag = Dag::Graph(Int32).new
     # (1...10).each { |i| dag.add i }
     # dag.add_edge({1, 3}, {5, 9}, {8, 7}, {8, 6}, {6, 4}, {4, 3}, {4, 7})
@@ -296,7 +296,7 @@ module Dag
         if !next_vertex.nil?
           @visited.add next_vertex
           @vertices_to_check.delete next_vertex
-          @graph.successors(next_vertex).each{|successors| @vertices_to_check.push successors }
+          @graph.successors(next_vertex).each { |successors| @vertices_to_check.push successors }
           return next_vertex
         end
         raise CycleDetectedError.new(@vertices_to_check) unless @vertices_to_check.empty?

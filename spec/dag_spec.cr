@@ -48,7 +48,7 @@ describe Dag do
 
       it "#add function can add multiple vertices to graph" do
         dag = Graph(Int32).new
-        dag.add(1,2,3,4,5)
+        dag.add(1, 2, 3, 4, 5)
         dag.size.should eq 5
       end
     end
@@ -73,9 +73,9 @@ describe Dag do
 
       it "#add_edge can add edge as a tuple." do
         dag = Graph(Int32).new
-        dag.add_edge( {1, 2} )
-        dag.add_edge( {1, 3} )
-        dag.add_edge( {2, 3} )
+        dag.add_edge({1, 2})
+        dag.add_edge({1, 3})
+        dag.add_edge({2, 3})
         dag.size.should eq 3
       end
 

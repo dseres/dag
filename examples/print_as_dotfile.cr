@@ -7,16 +7,13 @@ class DotNode
   property shape : String
   property color : String
 
-  def initialize(@name, @shape = "box", @color = "Black")
+  def initialize(@name, @shape = "box", @color = "black")
   end
 
   def hash
     name.hash
   end
 
-  def clone
-    DotNode.new @name.clone, @shape.clone, @color.clone
-  end
 end
 
 def print_as_dot(dag : Dag::Graph(DotNode))

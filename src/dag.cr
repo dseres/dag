@@ -232,7 +232,7 @@ module Dag
 
     private def topological_sort
       marked = {} of V => Adjacency(V)
-      unmarked = @vertices.clone
+      unmarked = @vertices.dup
       check_visited(marked, unmarked, roots)
       {marked, unmarked}
     end
@@ -342,13 +342,6 @@ module Dag
 
     def ==(other : Adjacency(V))
       @predecessors == other.predecessors && @successors == other.successors
-    end
-
-    def clone
-      v = Adjacency(V).new
-      v.predecessors = @predecessors.clone
-      v.successors = @successors.clone
-      v
     end
 
     def root?

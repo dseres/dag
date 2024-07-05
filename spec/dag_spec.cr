@@ -212,12 +212,58 @@ describe Dag do
       end
     end
 
+    describe "#descendant?" do
+      it "descendant? should be true for direct relations." do
+        dag = create_test_graph
+        dag.descendant?(4, 3).should be_true
+        dag.descendant?(6, 4).should be_true
+        dag.descendant?(8, 6).should be_true
+      end
+
+      it "descendant? should be true for nodes on the same tree." do
+        dag = create_test_graph
+        dag.descendant?(8, 3).should be_true
+      end
+
+      it "descendant? should be false for direct relations for opposite direction" do
+        dag = create_test_graph
+        dag.descendant?(3, 4).should be_false
+        dag.descendant?(4, 6).should be_false
+        dag.descendant?(6, 8).should be_false
+      end
+
+      it "descendant? should be false the same vertex" do
+        dag = create_test_graph
+        dag.descendant?(3, 3).should be_false
+      end
+
+      it "descendant? should be false for nodes on different branch" do
+        dag = create_test_graph
+        dag.descendant?(1, 5).should be_false
+        dag.descendant?(1, 9).should be_false
+        dag.descendant?(9, 8).should be_false
+      end
+
+      it "descendant? should be true for every vertices in a cycle" do
+        dag = Dag::Graph(Int32).new
+        dag.add_edge({1, 2}, {2, 3}, {3, 4}, {4, 1})
+        dag.descendant?(1, 1).should be_true
+        dag.descendant?(2, 1).should be_true
+      end
+    end
+
     describe "#each" do
       it "each should give back vertices in topological order" do
         dag = create_test_graph
         dag.size.should eq 9
-        dag.to_a.should eq [1, 2, 5, 9, 8, 6, 4, 3, 7]
+        vertices = dag.to_a
+        vertices.should eq [1, 2, 5, 9, 8, 6, 4, 3, 7]
+        # Topological sort can be checked with `descendant?` function
+        vertices.each_with_index(1) do |v, i|
+          vertices.skip(i).each { |later| dag.descendant?(later, v).should be_false }
+        end
       end
+
       it "each should raise an error if cycle is detected" do
         dag = create_test_graph
         dag.add_edge 3, 2
@@ -230,7 +276,12 @@ describe Dag do
       it "#each : Iterator(V) should give back vertices in topological order" do
         dag = create_test_graph
         dag.each.size.should eq 9
-        dag.each.to_a.should eq [1, 2, 5, 8, 9, 6, 4, 3, 7]
+        vertices = dag.each.to_a
+        vertices.should eq [1, 2, 5, 8, 9, 6, 4, 3, 7]
+        # Topological sort can be checked with `descendant?` function
+        vertices.each_with_index(1) do |v, i|
+          vertices.skip(i).each { |later| dag.descendant?(later, v).should be_false }
+        end
       end
 
       it "iterator should raise an error if cycle is detected" do

@@ -265,6 +265,24 @@ module Dag
       sorted.size == @vertices.size
     end
 
+    # Check if `other` is a descentant of `v`
+    # 
+    # If two vertices, `[a, b]` are topologically sorted, then `a` is not a descendant of `b`.
+    # 
+    # Example:
+    # ```
+    # dag = Dag::Graph(Int32).new
+    # dag.add 1, 2, 3, 4, 5
+    # dag.add_edge({1, 2}, {2, 3}, {3, 4}, {5, 4})
+    # dag.descendant? 1, 4 # => true
+    # dag.descendant? 1, 5 # => false
+    # dag.descendant? 2, 1 # => false
+    # dag.valid? # => false
+    # ```    
+    def descendant?(v : V, other : V) : Bool
+      @vertices[v].successors.any? { |s| s == other || descendant?(s,other)}
+    end
+
     # Retreives an iterator of the graph. The iterator will retreive vertices
     # in topological order.
     #

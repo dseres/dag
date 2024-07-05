@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Crystal Docs 1.11.2">
+<meta name="crystal_docs.project_version" content="0.9.0">
+<meta name="crystal_docs.project_name" content="dag">
+
+
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+  <meta name="repository-name" content="dag">
+  <title>Dag::Graph(V) - dag 0.9.0</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill="currentColor" fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<input type="checkbox" id="sidebar-btn">
+<label for="sidebar-btn" id="sidebar-btn-label">
+  <svg class="open" xmlns="http://www.w3.org/2000/svg" height="2em" width="2em" viewBox="0 0 512 512"><title>Open Sidebar</title><path fill="currentColor" d="M80 96v64h352V96H80zm0 112v64h352v-64H80zm0 112v64h352v-64H80z"></path></svg>
+  <svg class="close" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 512 512"><title>Close Sidebar</title><path fill="currentColor" d="m118.6 73.4-45.2 45.2L210.7 256 73.4 393.4l45.2 45.2L256 301.3l137.4 137.3 45.2-45.2L301.3 256l137.3-137.4-45.2-45.2L256 210.7Z"></path></svg>
+</label>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../index.html">
+          dag
+        </a>
+      </h1>
+
+      <span class="project-version">
+        0.9.0
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="dag/Dag" data-name="dag">
+      <a href="../Dag.html">Dag</a>
+      
+        <ul>
+  
+  <li class=" " data-id="dag/Dag/CycleDetectedError" data-name="dag::cycledetectederror">
+      <a href="../Dag/CycleDetectedError.html">CycleDetectedError</a>
+      
+    </li>
+  
+  <li class=" current" data-id="dag/Dag/Graph" data-name="dag::graph(v)">
+      <a href="../Dag/Graph.html">Graph</a>
+      
+    </li>
+  
+  <li class=" " data-id="dag/Dag/VertexExistsError" data-name="dag::vertexexistserror">
+      <a href="../Dag/VertexExistsError.html">VertexExistsError</a>
+      
+    </li>
+  
+  <li class=" " data-id="dag/Dag/VertexNotExistsError" data-name="dag::vertexnotexistserror">
+      <a href="../Dag/VertexNotExistsError.html">VertexNotExistsError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">class</span> Dag::<wbr>Graph(V)
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Dag/Graph.html">Dag::Graph(V)</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <p>Graph class represents a <a href="https://en.wikipedia.org/wiki/Directed_acyclic_graph">directed acyclic graph</a> with unweighted edges.
+Graph is represented as adjecency list of its vertices. Graph uses a Hash(V) storing its elements. V must be a uniqe value
+identifying a vertex of graph.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>, <span class="n">5</span>
+dag.add_edge({<span class="n">1</span>, <span class="n">3</span>}, {<span class="n">1</span>, <span class="n">2</span>}, {<span class="n">3</span>, <span class="n">4</span>})</code></pre>
+
+
+
+
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type">Enumerable(V)</li>
+    
+      <li class="other-type">Iterable(V)</li>
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      dag.cr
+    
+    <br/>
+  
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#%3D%3D%28other%3AGraph%28V%29%29-instance-method" class="signature"><strong>#==</strong>(other : Graph(V))</a>
+        
+          <div class="summary"><p>Two graph equals if they have vertices with same ids and the other has an edge between vertices with same ids if the first graph has an edge.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#%3D%3D%28other%29-instance-method" class="signature"><strong>#==</strong>(other)</a>
+        
+          <div class="summary"><p>Compares with other vertex.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#add%28vertex%3AV%29-instance-method" class="signature"><strong>#add</strong>(vertex : V)</a>
+        
+          <div class="summary"><p>Adds a new vertex to the graph.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#add%28%2Avertices%3AV%29-instance-method" class="signature"><strong>#add</strong>(*vertices : V)</a>
+        
+          <div class="summary"><p>Adds a new vertex to the graph.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#add_edge%28from%3AV%2Cto%3AV%29-instance-method" class="signature"><strong>#add_edge</strong>(from : V, to : V)</a>
+        
+          <div class="summary"><p>Adds a new edge to graph.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#add_edge%28edge%3ATuple%28V%2CV%29%29-instance-method" class="signature"><strong>#add_edge</strong>(edge : Tuple(V, V))</a>
+        
+          <div class="summary"><p>Adds a new edge to graph.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#add_edge%28%2Aedges%3ATuple%28V%2CV%29%29-instance-method" class="signature"><strong>#add_edge</strong>(*edges : Tuple(V, V))</a>
+        
+          <div class="summary"><p>Adds a new edge to graph.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#delete%28vertex%3AV%29-instance-method" class="signature"><strong>#delete</strong>(vertex : V)</a>
+        
+          <div class="summary"><p>Deletes a vertex from graph.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#delete_edge%28from%3AV%2Cto%3AV%29-instance-method" class="signature"><strong>#delete_edge</strong>(from : V, to : V)</a>
+        
+          <div class="summary"><p>Deletes an edge from graph.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#descendant%3F%28v%3AV%2Cother%3AV%29%3ABool-instance-method" class="signature"><strong>#descendant?</strong>(v : V, other : V) : Bool</a>
+        
+          <div class="summary"><p>Check if <code>other</code> is a descentant of <code>v</code></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each%28%26%29-instance-method" class="signature"><strong>#each</strong>(&)</a>
+        
+          <div class="summary"><p>Calls a given block on every key and vertex pairs stored in the graph topological order.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each%3AIterator%28V%29-instance-method" class="signature"><strong>#each</strong> : Iterator(V)</a>
+        
+          <div class="summary"><p>Retreives an iterator of the graph.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#has%3F%28vertex%3AV%29-instance-method" class="signature"><strong>#has?</strong>(vertex : V)</a>
+        
+          <div class="summary"><p>Checks whether a vertex exists in graph</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#has_edge%3F%28from%3AV%2Cto%3AV%29-instance-method" class="signature"><strong>#has_edge?</strong>(from : V, to : V)</a>
+        
+          <div class="summary"><p>Checks whether an edge exists.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#predecessors%28vertex%3AV%29-instance-method" class="signature"><strong>#predecessors</strong>(vertex : V)</a>
+        
+          <div class="summary"><p>Gets the predecessors of a vertex identified by key.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#roots-instance-method" class="signature"><strong>#roots</strong></a>
+        
+          <div class="summary"><p>Retreives all the root vertices of the graph</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#successors%28vertex%3AV%29-instance-method" class="signature"><strong>#successors</strong>(vertex : V)</a>
+        
+          <div class="summary"><p>Gets the successors of a vertex identified by key.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#valid%3F-instance-method" class="signature"><strong>#valid?</strong></a>
+        
+          <div class="summary"><p>Validate a graph, whether it is acyclic.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="==(other:Graph(V))-instance-method">
+      <div class="signature">
+        
+        def <strong>==</strong>(other : <a href="../Dag/Graph.html">Graph</a>(V))
+
+        <a class="method-permalink" href="#%3D%3D%28other%3AGraph%28V%29%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Two graph equals if they have vertices with same ids and the other has an edge between vertices with same ids if the first graph has an edge.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag1 <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag1.add <span class="n">1</span>
+dag1.add <span class="n">3</span>
+dag1.add <span class="n">5</span>
+dag1.add_edge <span class="n">1</span>, <span class="n">3</span>
+dag1.add_edge <span class="n">5</span>, <span class="n">3</span>
+
+dag2 <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag2.add <span class="n">1</span>
+dag2.add <span class="n">3</span>
+dag2.add <span class="n">5</span>
+dag2.add_edge <span class="n">1</span>, <span class="n">3</span>
+dag2.add_edge <span class="n">5</span>, <span class="n">3</span>
+dag1.should eq(dag2)
+
+dag1 <span class="o">==</span> dag2 <span class="c"># =&gt; true</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="==(other)-instance-method">
+      <div class="signature">
+        
+        def <strong>==</strong>(other)
+
+        <a class="method-permalink" href="#%3D%3D%28other%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Compares with other vertex. It is allways false.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add(<span class="n">1</span>)
+dag <span class="o">==</span> <span class="n">1</span> <span class="c"># =&gt; false</span>
+dag <span class="o">==</span> <span class="n">2</span> <span class="c"># =&gt; false</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="add(vertex:V)-instance-method">
+      <div class="signature">
+        
+        def <strong>add</strong>(vertex : V)
+
+        <a class="method-permalink" href="#add%28vertex%3AV%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds a new vertex to the graph.
+If vertex is already exists function will raise VertexExistsError
+Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>
+dag.add <span class="n">2</span>
+dag.to_a <span class="c"># =&gt; [1,2]</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="add(*vertices:V)-instance-method">
+      <div class="signature">
+        
+        def <strong>add</strong>(*vertices : V)
+
+        <a class="method-permalink" href="#add%28%2Avertices%3AV%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds a new vertex to the graph.
+If vertex is already exists function will raise VertexExistsError
+Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>
+dag.add <span class="n">2</span>
+dag.to_a <span class="c"># =&gt; [1,2]</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="add_edge(from:V,to:V)-instance-method">
+      <div class="signature">
+        
+        def <strong>add_edge</strong>(from : V, to : V)
+
+        <a class="method-permalink" href="#add_edge%28from%3AV%2Cto%3AV%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds a new edge to graph.
+Function will insert vertex too if one of the vertices doesn't exists.
+If edge is already exists it will not add it again.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add_edge <span class="n">1</span>, <span class="n">2</span>
+dag.to_a           <span class="c"># =&gt; [1, 2]</span>
+dag.has_edge? <span class="n">1</span>, <span class="n">2</span> <span class="c"># =&gt; true</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="add_edge(edge:Tuple(V,V))-instance-method">
+      <div class="signature">
+        
+        def <strong>add_edge</strong>(edge : Tuple(V, V))
+
+        <a class="method-permalink" href="#add_edge%28edge%3ATuple%28V%2CV%29%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds a new edge to graph.
+Function will insert vertex too if one of the vertices doesn't exists.
+If edge is already exists it will not add it again.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add_edge <span class="n">1</span>, <span class="n">2</span>
+dag.to_a           <span class="c"># =&gt; [1, 2]</span>
+dag.has_edge? <span class="n">1</span>, <span class="n">2</span> <span class="c"># =&gt; true</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="add_edge(*edges:Tuple(V,V))-instance-method">
+      <div class="signature">
+        
+        def <strong>add_edge</strong>(*edges : Tuple(V, V))
+
+        <a class="method-permalink" href="#add_edge%28%2Aedges%3ATuple%28V%2CV%29%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds a new edge to graph.
+Function will insert vertex too if one of the vertices doesn't exists.
+If edge is already exists it will not add it again.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add_edge <span class="n">1</span>, <span class="n">2</span>
+dag.to_a           <span class="c"># =&gt; [1, 2]</span>
+dag.has_edge? <span class="n">1</span>, <span class="n">2</span> <span class="c"># =&gt; true</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="delete(vertex:V)-instance-method">
+      <div class="signature">
+        
+        def <strong>delete</strong>(vertex : V)
+
+        <a class="method-permalink" href="#delete%28vertex%3AV%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Deletes a vertex from graph.
+Raises VertexNotExistsError when <em>vertex</em> doesn't exists in graph.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>
+dag.add <span class="n">2</span>
+dag.add_edge <span class="n">1</span>, <span class="n">2</span>
+dag.delete <span class="n">2</span>
+dag.has? <span class="n">2</span> <span class="c"># =&gt; false</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="delete_edge(from:V,to:V)-instance-method">
+      <div class="signature">
+        
+        def <strong>delete_edge</strong>(from : V, to : V)
+
+        <a class="method-permalink" href="#delete_edge%28from%3AV%2Cto%3AV%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Deletes an edge from graph. If one of the vertices doesn't exists, function will raise VertexNotExistsError.
+If edge doesn't exists, function will do nothing.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>
+dag.add <span class="n">2</span>
+dag.add_edge <span class="n">1</span>, <span class="n">2</span>
+dag.delete_edge <span class="n">1</span>, <span class="n">2</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="descendant?(v:V,other:V):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>descendant?</strong>(v : V, other : V) : Bool
+
+        <a class="method-permalink" href="#descendant%3F%28v%3AV%2Cother%3AV%29%3ABool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Check if <code>other</code> is a descentant of <code>v</code></p>
+<p>If two vertices, <code>[a, b]</code> are topologically sorted, then <code>a</code> is not a descendant of <code>b</code>.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>, <span class="n">5</span>
+dag.add_edge({<span class="n">1</span>, <span class="n">2</span>}, {<span class="n">2</span>, <span class="n">3</span>}, {<span class="n">3</span>, <span class="n">4</span>}, {<span class="n">5</span>, <span class="n">4</span>})
+dag.descendant? <span class="n">1</span>, <span class="n">4</span> <span class="c"># =&gt; true</span>
+dag.descendant? <span class="n">1</span>, <span class="n">5</span> <span class="c"># =&gt; false</span>
+dag.descendant? <span class="n">2</span>, <span class="n">1</span> <span class="c"># =&gt; false</span>
+dag.valid?           <span class="c"># =&gt; false</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each</strong>(&)
+
+        <a class="method-permalink" href="#each%28%26%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls a given block on every key and vertex pairs stored in the graph topological order.
+<a href="https://en.wikipedia.org/wiki/Topological_sorting">Topological order</a> is computed with Kahn's algorytm.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add(<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>)
+dag.add_edge({<span class="n">1</span>, <span class="n">2</span>}, {<span class="n">3</span>, <span class="n">4</span>})
+dag.each { <span class="o">|</span>v<span class="o">|</span> p! v }
+dag.to_a <span class="c"># =&gt; [1, 2, 3, 4 ]</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each:Iterator(V)-instance-method">
+      <div class="signature">
+        
+        def <strong>each</strong> : Iterator(V)
+
+        <a class="method-permalink" href="#each%3AIterator%28V%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Retreives an iterator of the graph. The iterator will retreive vertices
+in topological order.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+(<span class="n">1</span>...<span class="n">10</span>).each { <span class="o">|</span>i<span class="o">|</span> dag.add i }
+dag.add_edge({<span class="n">1</span>, <span class="n">3</span>}, {<span class="n">5</span>, <span class="n">9</span>}, {<span class="n">8</span>, <span class="n">7</span>}, {<span class="n">8</span>, <span class="n">6</span>}, {<span class="n">6</span>, <span class="n">4</span>}, {<span class="n">4</span>, <span class="n">3</span>}, {<span class="n">4</span>, <span class="n">7</span>})
+dag.each.size.should eq <span class="n">9</span>
+dag.each.to_a.should eq [<span class="n">1</span>, <span class="n">2</span>, <span class="n">5</span>, <span class="n">8</span>, <span class="n">9</span>, <span class="n">6</span>, <span class="n">4</span>, <span class="n">3</span>, <span class="n">7</span>]</code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="has?(vertex:V)-instance-method">
+      <div class="signature">
+        
+        def <strong>has?</strong>(vertex : V)
+
+        <a class="method-permalink" href="#has%3F%28vertex%3AV%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Checks whether a vertex exists in graph</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>
+dag.add <span class="n">2</span>
+dag.has? <span class="n">1</span> <span class="c"># =&gt; true</span>
+dag.has? <span class="n">2</span> <span class="c"># =&gt; true</span>
+dag.has? <span class="n">3</span> <span class="c"># =&gt; false</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="has_edge?(from:V,to:V)-instance-method">
+      <div class="signature">
+        
+        def <strong>has_edge?</strong>(from : V, to : V)
+
+        <a class="method-permalink" href="#has_edge%3F%28from%3AV%2Cto%3AV%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Checks whether an edge exists.
+Raises VertexNotExistsError when one of the vertices doesn't exists.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add_edge <span class="n">1</span>, <span class="n">2</span>
+dag.has_edge? <span class="n">1</span>, <span class="n">2</span> <span class="c"># =&gt; true</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="predecessors(vertex:V)-instance-method">
+      <div class="signature">
+        
+        def <strong>predecessors</strong>(vertex : V)
+
+        <a class="method-permalink" href="#predecessors%28vertex%3AV%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Gets the predecessors of a vertex identified by key.
+Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>
+dag.add_edge({<span class="n">1</span>, <span class="n">2</span>}, {<span class="n">2</span>, <span class="n">3</span>}, {<span class="n">2</span>, <span class="n">4</span>})
+dag.predecessors <span class="n">2</span> <span class="c"># =&gt; [1]</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="roots-instance-method">
+      <div class="signature">
+        
+        def <strong>roots</strong>
+
+        <a class="method-permalink" href="#roots-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Retreives all the root vertices of the graph</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>
+dag.add_edge <span class="n">1</span>, <span class="n">2</span>
+dag.roots <span class="c"># =&gt; [1, 3]</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="successors(vertex:V)-instance-method">
+      <div class="signature">
+        
+        def <strong>successors</strong>(vertex : V)
+
+        <a class="method-permalink" href="#successors%28vertex%3AV%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Gets the successors of a vertex identified by key.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>
+dag.add_edge({<span class="n">1</span>, <span class="n">2</span>}, {<span class="n">2</span>, <span class="n">3</span>}, {<span class="n">2</span>, <span class="n">4</span>})
+dag.successors(<span class="n">2</span>) <span class="c"># =&gt; [3,4]</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="valid?-instance-method">
+      <div class="signature">
+        
+        def <strong>valid?</strong>
+
+        <a class="method-permalink" href="#valid%3F-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Validate a graph, whether it is acyclic.</p>
+<p>Example:</p>
+<pre><code class="language-crystal">dag <span class="o">=</span> <span class="t">Dag</span><span class="t">::</span><span class="t">Graph</span>(<span class="t">Int32</span>).new
+dag.add <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>
+dag.add_edge({<span class="n">1</span>, <span class="n">2</span>}, {<span class="n">2</span>, <span class="n">3</span>}, {<span class="n">3</span>, <span class="n">4</span>})
+dag.valid? <span class="c"># =&gt; true</span>
+dag.add_edge(<span class="n">4</span>, <span class="n">2</span>)
+dag.valid? <span class="c"># =&gt; false</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+
+
+</div>
+
+</body>
+</html>

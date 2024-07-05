@@ -10,3 +10,10 @@ ports:
 
 image:
   file: .gitpod.Dockerfile    
+
+vscode:
+  extensions:
+    - crystal-lang-tools.crystal-lang
+    - ms-azuretools.vscode-docker
+    - eamodio.gitlens
+    - mhutchie.git-graph

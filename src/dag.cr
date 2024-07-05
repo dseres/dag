@@ -177,8 +177,8 @@ module Dag
     # ```
     def delete(vertex : V)
       raise VertexNotExistsError.new vertex unless has? vertex
-      @vertices[vertex].successors.each { |s| @vertices[s].predecessors.delete vertex }
-      @vertices[vertex].predecessors.each { |p| @vertices[p].successors.delete vertex }
+      @vertices[vertex].successors.each { |succ| @vertices[succ].predecessors.delete vertex }
+      @vertices[vertex].predecessors.each { |pred| @vertices[pred].successors.delete vertex }
       @vertices.delete vertex
     end
 
@@ -225,7 +225,7 @@ module Dag
     # dag.each { |v| p! v }
     # dag.to_a # => [1, 2, 3, 4 ]
     # ```
-    def each
+    def each(&)
       sorted, unsorted = topological_sort
       raise CycleDetectedError.new(unsorted.keys) if sorted.size < @vertices.size
       sorted.each { |vertex, _| yield(vertex) }
@@ -241,7 +241,7 @@ module Dag
     private def check_visited(marked, unmarked, vertices_to_check)
       vertices_to_check.each do |vertex|
         adjacency = @vertices[vertex]
-        if adjacency.predecessors.all? { |p| marked.has_key? p }
+        if adjacency.predecessors.all? { |pre| marked.has_key? pre }
           marked[vertex] = adjacency
           unmarked.delete vertex
           check_visited marked, unmarked, adjacency.successors
@@ -266,9 +266,9 @@ module Dag
     end
 
     # Check if `other` is a descentant of `v`
-    # 
+    #
     # If two vertices, `[a, b]` are topologically sorted, then `a` is not a descendant of `b`.
-    # 
+    #
     # Example:
     # ```
     # dag = Dag::Graph(Int32).new
@@ -277,10 +277,10 @@ module Dag
     # dag.descendant? 1, 4 # => true
     # dag.descendant? 1, 5 # => false
     # dag.descendant? 2, 1 # => false
-    # dag.valid? # => false
-    # ```    
+    # dag.valid?           # => false
+    # ```
     def descendant?(v : V, other : V) : Bool
-      @vertices[v].successors.any? { |s| s == other || descendant?(s,other)}
+      @vertices[v].successors.any? { |successor| successor == other || descendant?(successor, other) }
     end
 
     # Retreives an iterator of the graph. The iterator will retreive vertices

@@ -11,7 +11,7 @@ license: MIT
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 0.14
+    version: ~> 1.6.1
   # coverage:
   #   github: anykeyh/crystal-coverage
   # docspec:
